@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2' // Use a compatible version with your Gradle version
+}
+
+group = 'com.convonest'
+version = '1.0.0'
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.keycloak:keycloak-core:22.0.4"
+    implementation "org.keycloak:keycloak-server-spi:22.0.4"
+    implementation "org.keycloak:keycloak-server-spi-private:22.0.4"
+    implementation "org.keycloak:keycloak-services:22.0.4"
+    implementation "org.apache.kafka:kafka-clients:3.3.2"
+    implementation 'org.slf4j:slf4j-api:2.0.15'
+    testImplementation 'ch.qos.logback:logback-classic:1.5.6'
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+    zip64 true
+    dependencies {
+        include(dependency("org.apache.kafka:kafka-clients"))
+        // Uncomment if you need to exclude Keycloak dependencies
+        // exclude(dependency("org.keycloak:.*"))
+    }
+    manifest {
+        attributes(
+                'Implementation-Title': 'Custom Kafka Provider',
+                'Implementation-Version': '1.0.0'
+        )
+    }
+}

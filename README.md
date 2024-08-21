@@ -1,2 +1,4 @@
 # custom-key-cloak
-For key cloak library creation
+Command for key cloak fat jar creation
+
+     ./gradlew clean shadowJar
