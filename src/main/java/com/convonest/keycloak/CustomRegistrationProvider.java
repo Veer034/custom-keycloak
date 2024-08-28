@@ -2,6 +2,7 @@ package com.convonest.keycloak;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
@@ -88,13 +89,13 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
 
         // NOTE :: IF changing the name of any Attributes, Also modify the tenant
         // Service Onboard flow in OnBoardingServiceImpl
-        user.setSingleAttribute("tenantId", UUID.randomUUID().toString());
-        user.setSingleAttribute("orgId", UUID.randomUUID().toString());
-        user.setSingleAttribute("companyName", companyName);
-        user.setSingleAttribute("country", country);
-        user.setSingleAttribute("countryCode", countryCode);
-        user.setSingleAttribute("phoneNumber", phoneNumber);
-        user.setSingleAttribute("orgType", "INDIVIDUAL");
+        user.setAttribute("tenantId", Collections.singletonList(UUID.randomUUID().toString()));
+        user.setAttribute("orgId", Collections.singletonList(UUID.randomUUID().toString()));
+        user.setAttribute("companyName", Collections.singletonList(companyName));
+        user.setAttribute("country", Collections.singletonList(country));
+        user.setAttribute("countryCode", Collections.singletonList(countryCode));
+        user.setAttribute("phoneNumber", Collections.singletonList(phoneNumber));
+        user.setAttribute("orgType", Collections.singletonList("INDIVIDUAL"));
 
         // Set password
         user.credentialManager().updateCredential(UserCredentialModel.password(password));
