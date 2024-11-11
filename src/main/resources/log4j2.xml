@@ -1,0 +1,18 @@
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- Pattern includes date, level, class name, thread, file name, line number, and message -->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p [%c{1.}] (%t) %F:%L - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Configure logging level for your custom provider package -->
+        <Logger name="com.convonest.keycloak" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!-- Root logger configuration -->
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

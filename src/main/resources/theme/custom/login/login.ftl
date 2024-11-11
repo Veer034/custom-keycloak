@@ -51,7 +51,7 @@
                         <a href="${url.registrationUrl}" class="kc-register-link">New Registration</a>
                     </div>
                     <div class="form-group">
-                        <a href="http://localhost:8081" class="kc-back-link">Go Back</a>
+                        <a href="http://localhost:8080" class="kc-back-link">Go Back</a>
                     </div>
                 </form>
             </#if>

@@ -1,10 +1,14 @@
 package com.convonest.keycloak;
 
-import java.net.URI;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.UUID;
-
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
 import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailTemplateProvider;
@@ -19,15 +23,10 @@ import org.keycloak.services.resource.RealmResourceProvider;
 import org.keycloak.services.resources.LoginActionsService;
 import org.keycloak.services.validation.Validation;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.UUID;
 
 public class CustomRegistrationProvider implements RealmResourceProvider {
 
@@ -59,6 +58,7 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
         String lastName = formData.getFirst("lastName");
         String countryCode = formData.getFirst("countryCode");
         String phoneNumber = formData.getFirst("phoneNumber");
+        String sector = formData.getFirst("sector");
 
         // Validate input
         if (Validation.isBlank(email) || Validation.isBlank(password) || Validation.isBlank(phoneNumber)) {
@@ -96,6 +96,8 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
         user.setAttribute("countryCode", Collections.singletonList(countryCode));
         user.setAttribute("phoneNumber", Collections.singletonList(phoneNumber));
         user.setAttribute("orgType", Collections.singletonList("INDIVIDUAL"));
+        user.setAttribute("sector", Collections.singletonList(sector));
+
 
         // Set password
         user.credentialManager().updateCredential(UserCredentialModel.password(password));

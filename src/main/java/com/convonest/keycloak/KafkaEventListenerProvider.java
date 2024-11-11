@@ -1,10 +1,5 @@
 package com.convonest.keycloak;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -15,6 +10,11 @@ import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class KafkaEventListenerProvider implements EventListenerProvider {
 
@@ -54,7 +54,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-        logger.debug("Received event of type: {}", event.getType());
+        logger.info("Received event of type: {}", event.getType());
 
         if (event.getType() == EventType.REGISTER) {
             String emailId = event.getDetails().get("email");

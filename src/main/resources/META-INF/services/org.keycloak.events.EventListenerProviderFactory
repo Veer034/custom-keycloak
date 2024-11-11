@@ -1,2 +1,2 @@
-com.convonest.keycloak.CustomEventListenerProviderFactory
+com.convonest.keycloak.EmailVerificationEventListenerProviderFactory
 com.convonest.keycloak.KafkaEventListenerProviderFactory
