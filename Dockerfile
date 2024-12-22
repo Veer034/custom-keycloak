@@ -11,3 +11,10 @@ COPY src/main/resources/keycloak.conf /opt/keycloak/conf/keycloak.conf
 
 # Copy the log4j2.xml file for custom logging configuration, if needed
 COPY src/main/resources/log4j2.xml /opt/keycloak/conf/log4j2.xml
+
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start-dev","-Dkeycloak.profile.feature.upload_scripts=enabled"]
+
+# For production enabling HTTPS
+# ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+# CMD ["start", "--optimized"]
