@@ -27,27 +27,41 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     public KafkaEventListenerProvider() {
         Properties props = new Properties();
+        String bootstrapServers;
+        String kafkaTopic;
 
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("keycloak.properties")) {
-            if (input == null) {
-                logger.error("Could not find keycloak.properties");
-                throw new RuntimeException("Sorry, unable to find keycloak.properties");
+        // Check for environment variables
+        bootstrapServers = System.getenv("kafka.bootstrap.servers");
+        kafkaTopic = System.getenv("kafka.topic");
+
+        // Fallback to properties file if environment variables are not set
+        if (bootstrapServers == null || bootstrapServers.isEmpty() || kafkaTopic == null || kafkaTopic.isEmpty()) {
+            logger.info("Reading local properties as some values not present in bootstrapServers: {} , kafkaTopic:{}",
+                    bootstrapServers,kafkaTopic);
+            try (InputStream input = getClass().getClassLoader().getResourceAsStream("keycloak.properties")) {
+                if (input != null) {
+                    props.load(input);
+                    logger.info("Kafka properties loaded successfully");
+                } else {
+                    logger.warn("keycloak.properties not found, defaulting to environment variables");
+                }
+            } catch (IOException ex) {
+                logger.error("Failed to load Kafka properties", ex);
             }
 
-            props.load(input);
-            logger.info("Kafka properties loaded successfully");
-
-        } catch (IOException ex) {
-            logger.error("Failed to load Kafka properties", ex);
-            throw new RuntimeException("Failed to load Kafka properties", ex);
+            bootstrapServers = props.getProperty("kafka.bootstrap.servers", "localhost:9092");
+            kafkaTopic = props.getProperty("kafka.topic", "default-topic");
         }
 
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, props.getProperty("kafka.bootstrap.servers"));
+        logger.info("Using Kafka bootstrap servers: {}", bootstrapServers);
+        logger.info("Using Kafka topic: {}", kafkaTopic);
+
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         this.producer = new KafkaProducer<>(props);
-        this.topic = props.getProperty("kafka.topic");
+        this.topic = kafkaTopic;
 
         logger.info("Kafka producer initialized with topic: {}", this.topic);
     }
