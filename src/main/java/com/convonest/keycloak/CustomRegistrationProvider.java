@@ -1,6 +1,7 @@
 package com.convonest.keycloak;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
@@ -19,16 +20,22 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserCredentialModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.provider.ProviderFactory;
 import org.keycloak.services.resource.RealmResourceProvider;
 import org.keycloak.services.resources.LoginActionsService;
 import org.keycloak.services.validation.Validation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CustomRegistrationProvider implements RealmResourceProvider {
+    private static final Logger logger = LoggerFactory.getLogger(CustomRegistrationProvider.class);
 
     private final KeycloakSession session;
 
@@ -43,6 +50,20 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
 
     @Override
     public void close() {
+    }
+
+    @GET
+    @Path("/health/liveness")
+    public Response liveness() {
+        // Simple liveness check
+        return Response.ok("Liveness check passed").build();
+    }
+
+    @GET
+    @Path("/health/readiness")
+    public Response readiness() {
+        // Add any readiness checks you need, e.g., DB or cache connectivity
+        return Response.ok("Readiness check passed").build();
     }
 
     @POST
@@ -102,27 +123,58 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
         // Set password
         user.credentialManager().updateCredential(UserCredentialModel.password(password));
 
+        // Force Keycloak to require email verification at next login
+        user.addRequiredAction(UserModel.RequiredAction.VERIFY_EMAIL);
+
+
         // Create action token and send verification email
-        int lifespan = 604800; // 7 days in seconds
-        int expiration = (int) (Instant.now().getEpochSecond() + lifespan);
+        int expirationInSec = 86400; // 1 day span
+        int expiration = (int) (Instant.now().getEpochSecond() + expirationInSec);
         String tokenId = new VerifyEmailActionToken(user.getId(), expiration, user.getEmail(), email,
                 client.getClientId()).serialize(session, realm, uriInfo);
 
         URI actionUrl = LoginActionsService.actionTokenProcessor(uriInfo).queryParam("key", tokenId)
                 .build(realm.getName());
 
+
+        List<ProviderFactory> emailProviders =
+                session.getKeycloakSessionFactory().getProviderFactoriesStream(EmailTemplateProvider.class).collect(Collectors.toList());
+
+        if (emailProviders == null || emailProviders.isEmpty()) {
+            logger.warn("No EmailTemplateProvider implementations found!");
+        } else {
+            logger.info("Available EmailTemplateProvider implementations:");
+            for (ProviderFactory factory : emailProviders) {
+                logger.info(" - Implementation: " + factory.getId());
+            }
+        }
+
+        EmailTemplateProvider emailProvider = session.getProvider(EmailTemplateProvider.class);
+
+        if (emailProvider == null) {
+            logger.warn("Email provider is null!");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Email provider not configured")
+                    .build();
+        }
+
         try {
-            session.getProvider(EmailTemplateProvider.class).setRealm(realm).setUser(user)
-                    .sendVerifyEmail(actionUrl.toString(), lifespan);
+
+            int expirationInMin = expirationInSec / 60;
+            emailProvider.setRealm(realm)
+                    .setUser(user)
+                    .sendVerifyEmail(actionUrl.toString(), expirationInMin);
         } catch (EmailException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Failed to send verification email")
+            logger.error("Exception while sending email verification ", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Failed to send verification email: " + e.getMessage())
                     .build();
         }
 
         // Trigger REGISTER event
         new EventBuilder(realm, session, session.getContext().getConnection()).event(EventType.REGISTER).user(user)
                 .detail("username", email).detail("email", email).detail("register_method", "form").success();
-
+        logger.error("verificationUrl: {}", actionUrl);
         // Redirect to confirmation page with success message
         return Response.ok("Registration successful! Please check your email to verify your account.").build();
 
