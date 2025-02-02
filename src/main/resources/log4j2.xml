@@ -1,8 +1,8 @@
 <Configuration status="WARN">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <!-- Pattern includes date, level, logger name, thread, file name, line number, message, and full exception -->
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,UTC} [%thread] %-5p %c{36} - %m [%F:%L]%throwable{full}%n"/>
+            <!-- Pattern includes date, level, logger name, thread, class name, line number, message, and full exception -->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss,UTC} [%thread] %-5p %c{36} (%F:%L) - %m%throwable{full}%n"/>
         </Console>
     </Appenders>
     <Loggers>

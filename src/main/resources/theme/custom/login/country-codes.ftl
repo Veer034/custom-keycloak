@@ -1,5 +1,5 @@
 	<!-- Country List --><#list [
-                  {"code": "+1", "label": "United States of America", "country_code": "US"},
+                  {"code": "+1", "label": "United States", "country_code": "US"},
                   {"code": "+1", "label": "Canada", "country_code": "CA"},
                   {"code": "+7", "label": "Russia", "country_code": "RU"},
                   {"code": "+20", "label": "Egypt", "country_code": "EG"},

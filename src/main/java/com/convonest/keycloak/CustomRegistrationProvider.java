@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import org.keycloak.authentication.actiontoken.verifyemail.VerifyEmailActionToken;
-import org.keycloak.email.EmailException;
 import org.keycloak.email.EmailTemplateProvider;
 import org.keycloak.events.EventBuilder;
 import org.keycloak.events.EventType;
@@ -33,6 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.convonest.keycloak.Constants.TARGET_REACT_CLIENT_ID;
 
 public class CustomRegistrationProvider implements RealmResourceProvider {
     private static final Logger logger = LoggerFactory.getLogger(CustomRegistrationProvider.class);
@@ -88,9 +89,9 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
         }
 
         RealmModel realm = session.getContext().getRealm();
-        ClientModel client = realm.getClientByClientId("account");
+        ClientModel reactClient = realm.getClientByClientId(TARGET_REACT_CLIENT_ID);
 
-        if (client == null) {
+        if (reactClient == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Client not found").build();
         }
 
@@ -131,7 +132,7 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
         int expirationInSec = 86400; // 1 day span
         int expiration = (int) (Instant.now().getEpochSecond() + expirationInSec);
         String tokenId = new VerifyEmailActionToken(user.getId(), expiration, user.getEmail(), email,
-                client.getClientId()).serialize(session, realm, uriInfo);
+                reactClient.getClientId()).serialize(session, realm, uriInfo);
 
         URI actionUrl = LoginActionsService.actionTokenProcessor(uriInfo).queryParam("key", tokenId)
                 .build(realm.getName());
@@ -158,18 +159,18 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
                     .build();
         }
 
-        try {
-
-            int expirationInMin = expirationInSec / 60;
-            emailProvider.setRealm(realm)
-                    .setUser(user)
-                    .sendVerifyEmail(actionUrl.toString(), expirationInMin);
-        } catch (EmailException e) {
-            logger.error("Exception while sending email verification ", e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Failed to send verification email: " + e.getMessage())
-                    .build();
-        }
+//        try {
+//
+//            int expirationInMin = expirationInSec / 60;
+//            emailProvider.setRealm(realm)
+//                    .setUser(user)
+//                    .sendVerifyEmail(actionUrl.toString(), expirationInMin);
+//        } catch (EmailException e) {
+//            logger.error("Exception while sending email verification ", e);
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+//                    .entity("Failed to send verification email: " + e.getMessage())
+//                    .build();
+//        }
 
         // Trigger REGISTER event
         new EventBuilder(realm, session, session.getContext().getConnection()).event(EventType.REGISTER).user(user)
