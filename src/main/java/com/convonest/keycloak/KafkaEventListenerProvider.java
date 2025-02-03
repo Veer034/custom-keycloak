@@ -121,38 +121,39 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
                     }
                 }
             } else {
-                logger.info("Over client: {}", event.getClientId());
-            }
-        } else if (event.getType() == EventType.REFRESH_TOKEN_ERROR) {
-
-
-            // If user try to get new token and fails then expires that session
-            if (TARGET_REACT_CLIENT_ID.equals(event.getClientId())) {
-
-                logger.info("Refresh Data: id: {} , userId:{}  , getSessionId: ", event.getId(),
-                        event.getUserId(), event.getSessionId());
-
-                String userId = event.getUserId();
-                RealmModel realm = session.getContext().getRealm();
-                UserModel user = session.users().getUserById(realm, userId);
-
-                // Fetch all active sessions for this user
-                List<UserSessionModel> userSessions = session.sessions().getUserSessionsStream(realm, user).toList();
-
-                logger.info("refresh User logged in: " + userId + " | Invalidating previous sessions...");
-
-                // Loop through all sessions and invalidate them, except the latest one
-                for (UserSessionModel userSession : userSessions) {
-                    logger.info("Refresh Session  id: {} ,   sessionId: {} ", userSession.getId(),
-                            event.getSessionId());
-                    if (userSession.getId().equals(event.getSessionId())) {
-                        logger.info("Revoking session with failed refresh  user: " + userId + " | Session ID: " + userSession.getId());
-                        session.sessions().removeUserSession(realm, userSession);
-                        handleExpiredSession(session, realm, userSession, "token_expired");
-                    }
-                }
+                logger.info("Other client: {}", event.getClientId());
             }
         }
+//        else if (event.getType() == EventType.REFRESH_TOKEN_ERROR) {
+//
+//
+//            // If user try to get new token and fails then expires that session
+//            if (TARGET_REACT_CLIENT_ID.equals(event.getClientId())) {
+//
+//                logger.info("Refresh Data: id: {} , userId:{}  , getSessionId: {}", event.getId(),
+//                        event.getUserId(), event.getSessionId());
+//
+//                String userId = event.getUserId();
+//                RealmModel realm = session.getContext().getRealm();
+//                UserModel user = session.users().getUserById(realm, userId);
+//
+//                // Fetch all active sessions for this user
+//                List<UserSessionModel> userSessions = session.sessions().getUserSessionsStream(realm, user).toList();
+//
+//                logger.info("refresh User logged in: " + userId + " | Invalidating previous sessions...");
+//
+//                // Loop through all sessions and invalidate them, except the latest one
+//                for (UserSessionModel userSession : userSessions) {
+//                    logger.info("Refresh Session  id: {} ,   sessionId: {} ", userSession.getId(),
+//                            event.getSessionId());
+//                    if (userSession.getId().equals(event.getSessionId())) {
+//                        logger.info("Revoking session with failed refresh  user: " + userId + " | Session ID: " + userSession.getId());
+//                        session.sessions().removeUserSession(realm, userSession);
+//                        handleExpiredSession(session, realm, userSession, "token_expired");
+//                    }
+//                }
+//            }
+//        }
 
     }
 
