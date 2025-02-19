@@ -1,7 +1,7 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayInfo=social.displayInfo displayMessage=!messagesPerField.existsError('username','password') displayRequiredFields=false; section>
+<@layout.registrationLayout displayInfo=social.displayInfo displayMessage=!messagesPerField.existsError('username') displayRequiredFields=false; section>
     <#if section == "header">
-        <!-- No Data -->
+        <!-- Header Content (unchanged) -->
     <#elseif section == "form">
         <div id="kc-form">
             <div id="kc-form-wrapper">
@@ -40,21 +40,26 @@
                                 </div>
                             </div>
 
-                            <!-- Password Row -->
+                            <!-- Conditionally Render Password Fields -->
+                            <#if (register.formData.socialRegistration?string != "true")>
+                                <div class="form-row three-columns">
+                                    <div class="form-group">
+                                        <label for="password">${msg("password")}</label>
+                                        <input type="password" id="password" class="form-control" name="password"
+                                               placeholder="Enter your password" required tabindex="4"/>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="password-confirm">${msg("passwordConfirm")}</label>
+                                        <input type="password" id="password-confirm" class="form-control"
+                                               name="password-confirm"
+                                               placeholder="Confirm your password" required tabindex="5"/>
+                                    </div>
+                                </div>
+                            </#if>
+
+                            <!-- Sector Selection -->
                             <div class="form-row three-columns">
-                                <div class="form-group">
-                                    <label for="password">${msg("password")}</label>
-                                    <input type="password" id="password" class="form-control" name="password"
-                                           placeholder="Enter your password" required tabindex="4"/>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="password-confirm">${msg("passwordConfirm")}</label>
-                                    <input type="password" id="password-confirm" class="form-control"
-                                           name="password-confirm"
-                                           placeholder="Confirm your password" required tabindex="5"/>
-                                </div>
-
                                 <div class="form-group">
                                     <label for="sector">Sector</label>
                                     <select id="sector" name="sector" class="form-control" required tabindex="6">
@@ -116,7 +121,7 @@
                             <a href="${url.loginUrl}" class="login-button" tabindex="13">Sign In</a>
                         </div>
 
-                        <!-- Error message container -->
+                        <!-- Error Message Container -->
                         <div id="errorContainer" class="error-container" style="display: none;">
                             <div class="error-message"></div>
                         </div>
@@ -371,6 +376,10 @@
 
         <script>
 
+              // This variable is set in the FreeMarker template based on form data.
+              // If not set, it defaults to "false".
+              const SOCIAL_REGISTRATION = "${(register.formData.isSocialLogin!'false')}";
+
             function validatePhoneNumber(phone) {
                 return /^\d{7,15}$/.test(phone);
             }
@@ -404,7 +413,7 @@
                   return false;
               }
 
-              if (password !== passwordConfirm) {
+              if ( SOCIAL_REGISTRATION == "false" && password !== passwordConfirm) {
                   showError("Passwords do not match");
                   return false;
               }
@@ -416,7 +425,12 @@
 
 
               // Create URL-encoded data string
-              const formData = new URLSearchParams(new FormData(form)).toString();
+              const formDataObj = new FormData(form);
+
+                if (SOCIAL_REGISTRATION === "true") {
+                    formDataObj.append("isSocialLogin", "true");
+                }
+              const formData = new URLSearchParams(formDataObj).toString();
               try {
                   const response = await fetch("/realms/master/custom-registration/register", {
                       method: "POST",

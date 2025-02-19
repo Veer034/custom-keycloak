@@ -7,6 +7,8 @@ import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventType;
 import org.keycloak.events.admin.AdminEvent;
+import org.keycloak.models.AuthenticationExecutionModel;
+import org.keycloak.models.AuthenticationFlowModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
@@ -41,12 +43,14 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
         this.modelProducer = KafkaManager.createModelProducer();
         this.loggedOutTopic = KafkaManager.getLoggedOutTopic();
+        // Run the configuration logic on startup
+        configureGoogleLoginIfNeeded();
         logger.info("KafkaEventListenerProvider initialized with on boarding topic: {} , {}", this.onBoardingTopic, this.loggedOutTopic);
     }
 
     @Override
     public void onEvent(Event event) {
-        logger.info("Received event of type: {}, clientId: {} ,", event.getType(), event.getClientId());
+        logger.info("Received111111 event of type: {}, clientId: {} ,", event.getType(), event.getClientId());
 
         if (event.getType() == EventType.REGISTER) {
             String emailId = event.getDetails().get("email");
@@ -157,6 +161,89 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     }
 
+    private static boolean isConfigured = false; // Ensure we only configure once
+
+
+    private void configureGoogleLoginIfNeeded() {
+        if (!isConfigured) {
+
+
+            RealmModel realm = session.realms().getRealmByName("master"); // Change this to your realm name
+
+            if (realm != null) {
+                logger.info("🚀 Configuring Google login and onboarding flow...");
+
+                configureGmailFlow(realm);
+
+                isConfigured = true;
+                logger.info("✅ Google login and onboarding flow configured successfully.");
+            } else {
+                logger.warn("⚠️ Realm not found. Google login configuration skipped.");
+            }
+        }
+    }
+
+    private void configureGmailFlow(RealmModel realm) {
+        String flowAlias = "Gmail First Broker Login"; // Custom flow name
+
+        // Check if the flow already exists
+        AuthenticationFlowModel existingFlow = realm.getFlowByAlias(flowAlias);
+        if (existingFlow != null) {
+            logger.info("✅ Gmail First Broker Login flow already exists.");
+            return;
+        }
+
+        logger.info("🔧 Creating Gmail First Broker Login flow with Custom User Check...");
+
+        // ✅ Step 1: Create the Authentication Flow (Save first)
+        AuthenticationFlowModel flow = new AuthenticationFlowModel();
+        flow.setAlias(flowAlias);
+        flow.setProviderId("basic-flow");
+        flow.setBuiltIn(false);
+        flow.setTopLevel(true);
+        flow.setDescription("Google login with custom onboarding and user check");
+
+        realm.addAuthenticationFlow(flow); // 🔥 Persist the flow in Keycloak first
+        flow = realm.getFlowByAlias(flowAlias); // ✅ Retrieve saved flow
+
+        if (flow == null) {
+            logger.error("❌ Failed to retrieve created authentication flow.");
+            return;
+        }
+
+
+        // ✅ Step 2: Custom User Check (Ensures user exists before onboarding)
+        AuthenticationExecutionModel userCheckExec = new AuthenticationExecutionModel();
+        userCheckExec.setAuthenticator("custom-user-check-authenticator");
+        userCheckExec.setRequirement(AuthenticationExecutionModel.Requirement.REQUIRED);
+        userCheckExec.setParentFlow(flow.getId());
+        userCheckExec.setPriority(10);
+        realm.addAuthenticatorExecution(userCheckExec);
+
+        // ✅ Step 3: Custom Onboarding Form (Only runs if user is created)
+        AuthenticationExecutionModel onboardingFormExec = new AuthenticationExecutionModel();
+        onboardingFormExec.setAuthenticator("custom-onboarding-authenticator");
+        onboardingFormExec.setRequirement(AuthenticationExecutionModel.Requirement.REQUIRED);
+        onboardingFormExec.setParentFlow(flow.getId());
+        onboardingFormExec.setPriority(20);
+        realm.addAuthenticatorExecution(onboardingFormExec);
+
+
+        // ✅ Ensure the flow is assigned to the Google Identity Provider
+        AuthenticationFlowModel finalFlow = flow;
+        realm.getIdentityProvidersStream().forEach(idp -> {
+            if (idp.getAlias().equalsIgnoreCase("google")) {
+                idp.setFirstBrokerLoginFlowId(finalFlow.getId());
+                idp.getConfig().put("disableUserInfo", "true");
+                realm.updateIdentityProvider(idp);
+                logger.info("✅ Google Identity Provider updated with custom flow.");
+            }
+        });
+
+        // ✅ Persist realm changes
+        realm.setAttribute("updated", String.valueOf(System.currentTimeMillis()));
+        logger.info("✅ Gmail First Broker Login flow successfully configured and updated in Keycloak UI.");
+    }
 
     @Override
     public void onEvent(AdminEvent event, boolean includeRepresentation) {
