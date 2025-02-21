@@ -1,11 +1,12 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayInfo=social.displayInfo displayMessage=!messagesPerField.existsError('username','password') displayRequiredFields=false; section>
+<@layout.registrationLayout displayInfo=social.displayInfo displayMessage=!messagesPerField.existsError('username') displayRequiredFields=false; section>
     <#if section == "header">
-        <!-- No Data -->
+        <!-- Header Content (unchanged) -->
     <#elseif section == "form">
         <div id="kc-form">
             <div id="kc-form-wrapper">
-                <form id="kc-register-form" onsubmit="return registerUser(event);" method="post">
+                <form id="kc-register-form" onsubmit="return registerUser(event);"
+                      action="${url.loginAction}" method="post">
                     <div class="login-container">
                         <!-- Logo -->
                         <div class="logo-container">
@@ -19,42 +20,30 @@
                             <div class="form-group full-width">
                                 <label for="companyName">Company Name</label>
                                 <input type="text" id="companyName" class="form-control" name="companyName"
-                                       value="${(register.formData.companyName!'')}" required
+                                       value="${(onboarding.companyName!'')}" required
                                        placeholder="Enter your company name" tabindex="1"/>
                             </div>
 
                             <!-- Personal Info Row -->
-                            <div class="form-row three-columns">
+                            <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label for="firstName">${msg("firstName")}</label>
                                     <input type="text" id="firstName" class="form-control" name="firstName"
-                                           value="${(register.formData.firstName!'')}"
+                                           value="${(onboarding.firstName!'')}"
                                            placeholder="Enter your first name" required tabindex="2"/>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="lastName">${msg("lastName")}</label>
                                     <input type="text" id="lastName" class="form-control" name="lastName"
-                                           value="${(register.formData.lastName!'')}"
+                                           value="${(onboarding.lastName!'')}"
                                            placeholder="Enter your last name" required tabindex="3"/>
                                 </div>
                             </div>
 
-                            <!-- Password Row -->
-                            <div class="form-row three-columns">
-                                <div class="form-group">
-                                    <label for="password">${msg("password")}</label>
-                                    <input type="password" id="password" class="form-control" name="password"
-                                           placeholder="Enter your password" required tabindex="4"/>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="password-confirm">${msg("passwordConfirm")}</label>
-                                    <input type="password" id="password-confirm" class="form-control"
-                                           name="password-confirm"
-                                           placeholder="Confirm your password" required tabindex="5"/>
-                                </div>
-
+                            <!-- Sector Selection and Email Row -->
+                            <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label for="sector">Sector</label>
                                     <select id="sector" name="sector" class="form-control" required tabindex="6">
@@ -68,23 +57,25 @@
                                         <option value="health_insurance">Health Insurance</option>
                                         <option value="digital_healthcare">Digital Healthcare</option>
                                         <option value="healthcare">Hospitals and Healthcare</option>
+                                        <option value="other">Others</option>
                                     </select>
                                 </div>
-                            </div>
 
-                            <!-- Email and Phone Row -->
-                            <div class="form-row three-columns">
                                 <div class="form-group">
                                     <label for="email">${msg("email")}</label>
                                     <input type="email" id="email" class="form-control" name="email"
-                                           value="${(register.formData.email!'')}"
-                                           placeholder="Enter your email address" required tabindex="7"/>
+                                           value="${(onboarding.email!'')}"
+                                           placeholder="Enter your email address" required readonly tabindex="7"/>
                                 </div>
+                            </div>
 
-                                <div class="form-group" style="grid-column: span 2;">
+                            <!-- Phone Row -->
+                            <div class="form-row">
+                                <div class="form-group" style="width: 100%;">
                                     <label for="phoneNumber">Phone Number</label>
                                     <div class="phone-input-container">
-                                        <select id="countryCode" name="countryCode" class="country-select" required onchange="updateCountryCode()" tabindex="8">
+                                        <select id="countryCode" name="countryCode" class="country-select" required
+                                        onchange="updatePhoneCode()" tabindex="8">
                                             <#include "country-codes.ftl">
                                         </select>
                                         <input type="tel" id="phoneNumber" class="phone-input" name="phoneNumber"
@@ -95,7 +86,6 @@
                                     <div id="phoneError" class="error-message"></div>
                                 </div>
                             </div>
-                        </div>
 
                         <!-- Terms and Conditions -->
                         <div class="form-group terms-container">
@@ -110,13 +100,7 @@
                             <button class="submit-btn" type="submit" tabindex="12">${msg("doRegister")}</button>
                         </div>
 
-                        <!-- Login Link -->
-                        <div class="form-group login-link-container">
-                            <div class="login-text">Already have an account?</div>
-                            <a href="${url.loginUrl}" class="login-button" tabindex="13">Sign In</a>
-                        </div>
-
-                        <!-- Error message container -->
+                        <!-- Error Message Container -->
                         <div id="errorContainer" class="error-container" style="display: none;">
                             <div class="error-message"></div>
                         </div>
@@ -205,9 +189,9 @@
                 width: 100% !important;
             }
 
-            .three-columns {
+            .two-columns {
                 display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
+                grid-template-columns: repeat(2, 1fr) !important;
                 gap: 6px !important;
             }
 
@@ -304,7 +288,7 @@
 
             /* Responsive design */
             @media (max-width: 768px) {
-                .three-columns {
+                .two-columns {
                     grid-template-columns: 1fr !important;
                 }
 
@@ -371,6 +355,7 @@
 
         <script>
 
+
             function validatePhoneNumber(phone) {
                 return /^\d{7,15}$/.test(phone);
             }
@@ -388,74 +373,35 @@
                 errorContainer.style.display = 'none';
             }
 
-            function updatePhoneCode() {
-                const select = document.getElementById('countryCode');
-                const code = select.options[select.selectedIndex].getAttribute('data-phone-code');
-                document.getElementById('phoneCode').value = code;
-            }
+         function registerUser(event) {
+             event.preventDefault();
 
+             const form = document.getElementById("kc-register-form");
+             const phoneNumber = document.getElementById("phoneNumber").value;
+             const terms = document.getElementById("terms").checked;
 
-          async function registerUser(event) {
-              event.preventDefault();
+             hideError();
 
-              const form = event.target;
-              const phoneNumber = document.getElementById("phoneNumber").value;
-              const password = document.getElementById("password").value;
-              const passwordConfirm = document.getElementById("password-confirm").value;
-              const terms = document.getElementById("terms").checked;
+             if (!validatePhoneNumber(phoneNumber)) {
+                 showError("Please enter a valid phone number (7-15 digits)");
+                 return false;
+             }
 
-              hideError();
+             if (!terms) {
+                 showError("Please accept the Terms and Conditions");
+                 return false;
+             }
 
-              if (!validatePhoneNumber(phoneNumber)) {
-                  showError("Please enter a valid phone number (7-15 digits)");
-                  return false;
-              }
+             // Ensure country code is updated
+             updatePhoneCode();
 
-              if (password !== passwordConfirm) {
-                  showError("Passwords do not match");
-                  return false;
-              }
+             console.log("Form submitting to: " + form.action);
 
-              if (!terms) {
-                  showError("Please accept the Terms and Conditions");
-                  return false;
-              }
+             // Traditional form submission - no AJAX
+             form.submit();
+             return false; // Prevent default form submission since we're doing it manually
+         }
 
-
-                // Ensure country code is updated
-              updatePhoneCode();
-
-              // Create URL-encoded data string
-              const formData = new URLSearchParams(new FormData(form)).toString();
-              try {
-                  const response = await fetch("/realms/master/custom-registration/register", {
-                      method: "POST",
-                      headers: {
-                          "Content-Type": "application/x-www-form-urlencoded", // Explicitly set the correct content type
-                      },
-                      body: formData, // Pass URL-encoded string as the body
-                  });
-
-                  if (response.ok) {
-                       // Instead of redirecting, show success message
-                      showSuccessMessage(
-                          "Registration successful! We've sent a verification link to your email address. " +
-                          "Please check your inbox and click the link to complete your registration."
-                      );
-                  } else {
-                    if (response.status === 409) {
-                        showError("This email is already registered. Try another email.");
-                    } else {
-                        const result = await response.json().catch(() => ({ message: "Unknown error occurred" }));
-                        showError(result.message || "Registration failed");
-                    }
-                  }
-              } catch (error) {
-                 console.error("Error submitting registration form:", error);
-                 showError("An unexpected error occurred. Please try again.");
-              }
-              return false;
-          }
 
           function showSuccessMessage(message) {
               const errorContainer = document.getElementById('errorContainer');
@@ -473,7 +419,7 @@
 
 
 
-            function updateCountryCode() {
+            function updatePhoneCode() {
                 const select = document.getElementById('countryCode');
                 const code = select.options[select.selectedIndex].getAttribute('data-phone-code');
                 document.getElementById('phoneCode').value = code;
@@ -493,6 +439,15 @@
                     modal.style.display = 'none';
                 }
             }
+
+
+             // Add this near the top of your script section
+                console.log("Form action URL: ${url.loginAction}");
+
+                // Add this to check if the form was properly rendered
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log("Form action set to: " + document.getElementById('kc-register-form').action);
+                });
         </script>
     </#if>
 </@layout.registrationLayout>

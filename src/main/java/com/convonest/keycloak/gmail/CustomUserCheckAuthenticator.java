@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.convonest.keycloak.Constants.GOOGLE;
+
 public class CustomUserCheckAuthenticator implements Authenticator, AuthenticatorFactory {
     private static final Logger logger = LoggerFactory.getLogger(CustomUserCheckAuthenticator.class);
 
@@ -296,7 +298,7 @@ public class CustomUserCheckAuthenticator implements Authenticator, Authenticato
 
     @Override
     public String getReferenceCategory() {
-        return "google";
+        return GOOGLE;
     }
 
     @Override

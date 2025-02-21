@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.convonest.keycloak.Constants.GOOGLE;
 import static com.convonest.keycloak.Constants.MAX_RETRIES;
 import static com.convonest.keycloak.Constants.RETRY_DELAY;
 import static com.convonest.keycloak.Constants.TARGET_REACT_CLIENT_ID;
@@ -50,7 +51,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
 
     @Override
     public void onEvent(Event event) {
-        logger.info("Received111111 event of type: {}, clientId: {} ,", event.getType(), event.getClientId());
+        logger.info("Received event of type: {}, clientId: {} ,", event.getType(), event.getClientId());
 
         if (event.getType() == EventType.REGISTER) {
             String emailId = event.getDetails().get("email");
@@ -232,7 +233,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
         // ✅ Ensure the flow is assigned to the Google Identity Provider
         AuthenticationFlowModel finalFlow = flow;
         realm.getIdentityProvidersStream().forEach(idp -> {
-            if (idp.getAlias().equalsIgnoreCase("google")) {
+            if (idp.getAlias().equalsIgnoreCase(GOOGLE)) {
                 idp.setFirstBrokerLoginFlowId(finalFlow.getId());
                 idp.getConfig().put("disableUserInfo", "true");
                 realm.updateIdentityProvider(idp);

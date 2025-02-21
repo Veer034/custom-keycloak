@@ -1,5 +1,7 @@
 package com.convonest.keycloak.gmail;
 
+import com.convonest.keycloak.Constants;
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.authentication.AbstractFormAuthenticator;
@@ -7,16 +9,26 @@ import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
+import org.keycloak.events.EventBuilder;
+import org.keycloak.events.EventType;
 import org.keycloak.models.AuthenticationExecutionModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.sessions.AuthenticationSessionModel;
+import org.keycloak.utils.StringUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import static com.convonest.keycloak.Constants.ADMIN_ROLE;
+import static com.convonest.keycloak.Constants.ALL_ROLES;
+import static com.convonest.keycloak.KeycloakUtils.assignUserToGroup;
+import static com.convonest.keycloak.KeycloakUtils.writeValueAsString;
 
 public class CustomOnboardingAuthenticator extends AbstractFormAuthenticator implements Authenticator, AuthenticatorFactory {
 
@@ -32,57 +44,105 @@ public class CustomOnboardingAuthenticator extends AbstractFormAuthenticator imp
             return;
         }
 
-        logger.info("🚀 authenticate() called for user: " + user.getUsername());
 
-        AuthenticationSessionModel authSession = context.getAuthenticationSession();
-
-        // Check if form has already been submitted successfully in this session
-        if ("true".equals(authSession.getAuthNote("onboarding_completed"))) {
-            logger.info("✅ Onboarding already completed in this session. Skipping.");
+        // Check if user has already completed onboarding by checking for required attributes
+        if (isOnboardingComplete(user)) {
+            logger.info("✅ User already completed onboarding, skipping form: " + user.getUsername());
             context.success();
             return;
         }
 
-        // Check if form has already been shown but not submitted
-        if ("true".equals(authSession.getAuthNote("onboarding_shown"))) {
-            logger.info("⚠️ Onboarding form already shown but not completed. Reshowing form.");
-            context.challenge(context.form().createForm("onboarding-form.ftl"));
-            return;
-        }
 
-        // Mark the form as shown
-        authSession.setAuthNote("onboarding_shown", "true");
+        logger.info("🚀 authenticate() called for user: " + user.getUsername());
 
         // Show the onboarding form
+
+        Map<String, String> formData = new HashMap<>();
+        formData.put(Constants.FIRST_NAME, user.getFirstName() != null ? user.getFirstName() : "");
+        formData.put(Constants.LAST_NAME, user.getLastName() != null ? user.getLastName() : "");
+        formData.put(Constants.EMAIL, user.getEmail() != null ? user.getEmail() : "");
+
+
         logger.info("📝 Displaying onboarding form for user: " + user.getUsername());
-        context.challenge(context.form().createForm("onboarding-form.ftl"));
+        context.challenge(context.form().setAttribute("onboarding", formData).createForm("onboarding.ftl"));
+    }
+
+    private boolean isOnboardingComplete(UserModel user) {
+        // Check for required attributes that indicate completed onboarding
+        return StringUtil.isNotBlank(user.getFirstAttribute(Constants.TENANT_ID));
     }
 
     @Override
     public void action(AuthenticationFlowContext context) {
-        String phoneNumber = context.getHttpRequest().getDecodedFormParameters().getFirst("phone");
-        String company = context.getHttpRequest().getDecodedFormParameters().getFirst("company");
+        logger.info("🔍 Action method called");
 
-        if (phoneNumber == null || phoneNumber.trim().isEmpty() || company == null || company.trim().isEmpty()) {
-            logger.warn("❌ Form validation failed. Missing fields.");
-            context.failureChallenge(AuthenticationFlowError.INVALID_USER,
-                    context.form().setError("All fields are required").createForm("onboarding-form.ftl"));
+        MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
+        logger.info("📝 Form parameters: " + formData);
+
+        UserModel user = context.getUser();
+        if (user == null) {
+            logger.error("❌ User is null in action method");
+            context.attempted();
             return;
         }
 
-        UserModel user = context.getUser();
-        user.setSingleAttribute("phoneNumber", phoneNumber);
-        user.setSingleAttribute("company", company);
-        user.setSingleAttribute("tenantId", "12345");
+        logger.info("👤 Processing form for user: " + user.getUsername());
 
-        // Mark onboarding as completed
-        AuthenticationSessionModel authSession = context.getAuthenticationSession();
-        authSession.setAuthNote("onboarding_completed", "true");
-        authSession.removeAuthNote("onboarding_shown"); // Clean up
+        try {
 
-        logger.info("✅ User details saved successfully: " + user.getUsername());
-        context.success();
+            String tenantId = UUID.randomUUID().toString();
+
+
+            user.setSingleAttribute(Constants.TENANT_ID, tenantId);
+            user.setSingleAttribute(Constants.ORG_ID, UUID.randomUUID().toString());
+            user.setSingleAttribute(Constants.ORG_TYPE, Constants.INDIVIDUAL);
+
+            // Process form data and save to user
+            user.setFirstName(formData.getFirst(Constants.FIRST_NAME));
+            user.setLastName(formData.getFirst(Constants.LAST_NAME));
+            user.setSingleAttribute(Constants.COMPANY_NAME, formData.getFirst(Constants.COMPANY_NAME));
+            user.setSingleAttribute(Constants.PHONE_CODE, formData.getFirst(Constants.PHONE_CODE));
+            user.setSingleAttribute(Constants.PHONE_NUMBER, formData.getFirst(Constants.PHONE_NUMBER));
+            user.setSingleAttribute(Constants.COUNTRY_CODE, formData.getFirst(Constants.COUNTRY_CODE));
+            user.setSingleAttribute(Constants.SECTOR, formData.getFirst(Constants.SECTOR));
+
+            // Ensure the user has the correct social login provider attribute
+            user.setSingleAttribute(Constants.SOCIAL_PROVIDER, SocialProvider.GOOGLE.name());
+
+            // **1. Create Group in Keycloak & Assign User to Group**
+
+            RealmModel realm = context.getRealm();
+
+            String groupName = tenantId + Constants.ADMIN;
+            assignUserToGroup(realm, user, groupName);
+
+
+            // **2. Set Default Attributes (isActive, role)**
+            user.setSingleAttribute(Constants.IS_ACTIVE, String.valueOf(false));
+            user.setSingleAttribute(Constants.IS_ONBOARDED, String.valueOf(false));
+            user.setSingleAttribute(Constants.ROLE, ADMIN_ROLE);
+            user.setSingleAttribute(Constants.PRIVILEGES, writeValueAsString(ALL_ROLES));
+
+            logger.info("✅ User details saved successfully for: " + user.getUsername());
+            context.success();
+
+            // Trigger REGISTER event
+            // Get the session from context
+            KeycloakSession session = context.getSession();
+
+
+            new EventBuilder(realm, session, session.getContext().getConnection()).event(EventType.REGISTER).user(user)
+                    .detail("username", user.getUsername()).detail(Constants.EMAIL, user.getEmail()).detail("register_method", "form").success();
+
+
+        } catch (Exception e) {
+            logger.error("❌ Error processing form: " + e.getMessage(), e);
+            context.failure(AuthenticationFlowError.INTERNAL_ERROR);
+        }
+
+
     }
+
 
     @Override
     public boolean requiresUser() {
