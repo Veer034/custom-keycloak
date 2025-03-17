@@ -14,12 +14,29 @@
             <div class="verification-content">
                 <p class="instruction">Please verify your email to activate your account.</p>
                 <div class="action-button">
-                    <a href="${url.loginAction}" class="submit-btn">Verify Email</a>
+                    <a href="${url.loginAction}" class="submit-btn">Re-Send Email</a>
                 </div>
             </div>
         </div>
 
         <style>
+
+            /* Header hiding */
+            #kc-header,
+            #kc-header-wrapper {
+                display: none !important;
+            }
+
+            /* Container styles */
+            #kc-form,
+            #kc-form-wrapper,
+            .login-container {
+                width: 100% !important;
+                max-width: 700px !important;
+                margin: 0 auto !important;
+                padding: 20px !important;
+            }
+
             /* Base styles */
             body {
                 margin: 0;
