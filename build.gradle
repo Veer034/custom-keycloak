@@ -39,8 +39,8 @@ shadowJar {
     }
     manifest {
         attributes(
-                'Implementation-Title': 'Custom Kafka Provider',
-                'Implementation-Version': '1.0.0'
+                'Implementation-Title': 'Custom Keycloak Provider',
+                'Implementation-Version': version
         )
     }
 }

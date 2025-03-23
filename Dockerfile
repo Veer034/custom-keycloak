@@ -1,7 +1,3 @@
-
-# Use below command to build a jar with dependencies
-
-
 FROM quay.io/keycloak/keycloak:22.0.4
 
 COPY build/libs/custom-keycloak-1.0.0-all.jar /opt/keycloak/providers/
@@ -13,7 +9,7 @@ COPY src/main/resources/keycloak.conf /opt/keycloak/conf/keycloak.conf
 COPY src/main/resources/log4j2.xml /opt/keycloak/conf/log4j2.xml
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-CMD ["start-dev","-Dkeycloak.profile.feature.upload_scripts=enabled"]
+CMD ["start", "--hostname-strict=false", "-Dkeycloak.profile.feature.upload_scripts=enabled"]
 
 # For production enabling HTTPS
 # ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

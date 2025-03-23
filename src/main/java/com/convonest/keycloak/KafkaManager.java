@@ -5,6 +5,7 @@ import com.convonest.keycloak.serialization.LoggedOutUserRecordSerializer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.keycloak.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,12 +65,12 @@ public class KafkaManager {
             logger.error("❌ Failed to load Kafka properties from keycloak.properties", ex);
         }
 
-        props.put("bootstrap.servers", bootstrapServers != null ? bootstrapServers : props.getProperty("kafka.bootstrap.servers", "localhost:9092"));
 
         // Final fallback to default values
-        props.put("bootstrap.servers", bootstrapServers != null ? bootstrapServers : props.getProperty("kafka.bootstrap.servers", "localhost:9092"));
-        onBoardingTopic = onBoardingTopicEnv != null ? onBoardingTopicEnv : props.getProperty("kafka.topic.on-boarding", "default-on-boarding-topic");
-        loggedOutTopic = loggedOutTopicEnv != null ? loggedOutTopicEnv : props.getProperty("kafka.topic.logged-out", "default-logged-out-topic");
+        props.put("bootstrap.servers", StringUtil.isNotBlank(bootstrapServers) ? bootstrapServers : props.getProperty(
+                "kafka.bootstrap.servers", "localhost:9092"));
+        onBoardingTopic = StringUtil.isNotBlank(onBoardingTopicEnv) ? onBoardingTopicEnv : props.getProperty("kafka.topic.on-boarding", "default-on-boarding-topic");
+        loggedOutTopic = StringUtil.isNotBlank(loggedOutTopicEnv) ? loggedOutTopicEnv : props.getProperty("kafka.topic.logged-out", "default-logged-out-topic");
 
         logger.info("✅ Using Kafka Bootstrap Servers: {}", props.get("bootstrap.servers"));
         logger.info("✅ On-Boarding Topic: {}", onBoardingTopic);

@@ -4,7 +4,7 @@ Command for key cloak fat jar creation
 
     ./gradlew clean shadowJar
 
-Google COnfiguration for OAuth2.0
+Google Configuration for OAuth2.0
 
 ### In Keycloak Admin Console:
 
