@@ -1,4 +1,4 @@
-# custom-key-cloak
+# custom-keycloak
 
 Command for key cloak fat jar creation
 
@@ -23,12 +23,15 @@ Google Configuration for OAuth2.0
 3. Create OAuth 2.0 credentials
 4. Add authorized redirect URI from Keycloak
 
+   ```
    http://localhost:8080/realms/master/broker/google/endpoint
    http://localhost:8090/email-access/token/gmail
    http://localhost:3000/email/add/gmail
-
+   ```
 
 6. Add authorized JavaScript origins
 
+   ```
    http://localhost:3000
    https://convonest.com
+   ```

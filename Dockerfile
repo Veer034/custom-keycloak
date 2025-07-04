@@ -5,12 +5,12 @@ COPY src/main/resources/theme/custom /opt/keycloak/themes/custom
 # Can use to change config like debug and DB endpoint.
 COPY src/main/resources/keycloak.conf /opt/keycloak/conf/keycloak.conf
 
-# Copy the log4j2.xml file for custom logging configuration, if needed
-COPY src/main/resources/log4j2.xml /opt/keycloak/conf/log4j2.xml
+# Add this line to build Keycloak with MySQL support
+RUN /opt/keycloak/bin/kc.sh build --db=mysql
+
+ENV TZ=UTC
+ENV KC_LOG_CONSOLE_FORMAT="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{2.} - %s%e%n"
+
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
 CMD ["start", "--hostname-strict=false", "-Dkeycloak.profile.feature.upload_scripts=enabled"]
-
-# For production enabling HTTPS
-# ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
-# CMD ["start", "--optimized"]

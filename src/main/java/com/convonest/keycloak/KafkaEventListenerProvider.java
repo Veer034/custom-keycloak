@@ -56,7 +56,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
         if (event.getType() == EventType.REGISTER) {
             String emailId = event.getDetails().get("email");
 
-            logger.info("Publishing message to Kafka topic {}: {}", onBoardingTopic, emailId);
+            logger.info("Publishing register message to Kafka topic {}: {}", onBoardingTopic, emailId);
 
             boolean success = false;
             int attempt = 0;
@@ -72,7 +72,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
                     // Asynchronously send the message
                     stringProducer.send(new ProducerRecord<>(onBoardingTopic, emailId), (metadata, exception) -> {
                         if (exception != null) {
-                            logger.warn("Error sending message to Kafka topic {}: {}", onBoardingTopic,
+                            logger.error("Error sending message to Kafka topic {}: {}", onBoardingTopic,
                                     exception.getMessage());
                         } else {
                             logger.debug("Message sent to Kafka topic {} with offset {}", metadata.topic(),
@@ -89,7 +89,7 @@ public class KafkaEventListenerProvider implements EventListenerProvider {
                     try {
                         TimeUnit.MILLISECONDS.sleep(RETRY_DELAY);
                     } catch (InterruptedException ie) {
-                        logger.error("Retry interrupted", ie);
+                        logger.error("Registration process retry interrupted", ie);
                         Thread.currentThread().interrupt();
                     }
                 }
