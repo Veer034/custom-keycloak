@@ -68,16 +68,9 @@
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-
-            .logo-container {
-                text-align: center;
-                margin-bottom: 30px;
-            }
-
-            .logo {
-                max-width: 150px;
-                margin-bottom: 15px;
-            }
+             .logo {
+                 max-width: 100px;
+             }
 
             .form-group {
                 margin-bottom: 20px;

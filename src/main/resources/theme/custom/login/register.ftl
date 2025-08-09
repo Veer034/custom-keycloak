@@ -291,16 +291,10 @@
                 margin: 5px 0 !important;
             }
 
-            /* Logo container */
-            .logo-container {
-                text-align: center !important;
-                margin-bottom: 5px !important;
-            }
 
-            .logo {
-                max-width: 120px !important;
-                margin-bottom: 5px !important;
-            }
+             .logo {
+                 max-width: 100px;
+             }
 
             /* Responsive design */
             @media (max-width: 768px) {

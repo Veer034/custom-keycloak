@@ -128,14 +128,9 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
-            .logo-container {
-                text-align: center;
-                margin-bottom: 30px;
-            }
 
             .logo {
-                max-width: 150px;
-                margin-bottom: 15px;
+                max-width: 100px;
             }
 
             .form-group {

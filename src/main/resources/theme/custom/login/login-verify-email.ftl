@@ -58,16 +58,9 @@
                 box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }
 
-            /* Logo styles */
-            .logo-container {
-                text-align: center !important;
-                margin-bottom: 24px !important;
-            }
-
-            .logo {
-                max-width: 120px !important;
-                margin-bottom: 16px !important;
-            }
+             .logo {
+                 max-width: 100px;
+             }
 
             .title {
                 font-size: 24px;
