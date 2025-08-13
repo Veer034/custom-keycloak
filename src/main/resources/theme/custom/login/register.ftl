@@ -14,6 +14,16 @@
                             <p class="subtitle">Join Convonest Analytics</p>
                         </div>
 
+                        <!-- Error message container at top -->
+                        <div id="errorContainer" class="error-container" style="display: none;">
+                            <div class="error-message"></div>
+                        </div>
+
+                        <!-- Loading message container at top -->
+                        <div id="loadingContainer" class="loading-container" style="display: none;">
+                            <div class="loading-message">Processing your registration... Please wait</div>
+                        </div>
+
                         <div class="form-grid">
                             <!-- Company Name -->
                             <div class="form-group full-width">
@@ -42,18 +52,31 @@
 
                             <!-- Password Row -->
                             <div class="form-row three-columns">
+                                <!-- Password Field -->
                                 <div class="form-group">
                                     <label for="password">${msg("password")}</label>
                                     <input type="password" id="password" class="form-control" name="password"
-                                           placeholder="Enter your password" required tabindex="4"/>
+                                           placeholder="Enter your password" required tabindex="4"
+                                           oninput="validatePasswordStrength(); checkPasswordMatch();" />
+                                    <div id="password-strength" class="password-strength"></div>
+                                    <ul id="password-requirements" class="password-requirements">
+                                        <li id="req-length">Minimum 8 characters</li>
+                                        <li id="req-uppercase">At least 1 uppercase letter</li>
+                                        <li id="req-lowercase">At least 1 lowercase letter</li>
+                                        <li id="req-number">At least 1 number</li>
+                                        <li id="req-special">At least 1 special character</li>
+                                    </ul>
                                 </div>
 
+                                <!-- Confirm Password -->
                                 <div class="form-group">
                                     <label for="password-confirm">${msg("passwordConfirm")}</label>
                                     <input type="password" id="password-confirm" class="form-control"
-                                           name="password-confirm"
-                                           placeholder="Confirm your password" required tabindex="5"/>
+                                           name="password-confirm" placeholder="Confirm your password" required tabindex="5"
+                                           oninput="checkPasswordMatch();" />
+                                    <div id="password-match-message" class="password-match-message"></div>
                                 </div>
+
 
                                 <div class="form-group">
                                     <label for="sector">Sector</label>
@@ -68,6 +91,7 @@
                                         <option value="health_insurance">Health Insurance</option>
                                         <option value="digital_healthcare">Digital Healthcare</option>
                                         <option value="healthcare">Hospitals and Healthcare</option>
+                                        <option value="others">Others</option>
                                     </select>
                                 </div>
                             </div>
@@ -269,6 +293,12 @@
                 background: #0052cc !important;
             }
 
+            .submit-btn.disabled {
+                background-color: #9ca3af !important;
+                cursor: not-allowed !important;
+            }
+
+
             /* Error container */
             .error-container {
                 background-color: #fee2e2;
@@ -361,9 +391,122 @@
             .terms-content li {
                 margin: 5px 0;
             }
+
+            .loading-container {
+                background-color: #e0f2fe;
+                border: 1px solid #0284c7;
+                padding: 10px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+            .loading-message {
+                color: #0369a1;
+                font-size: 14px;
+            }
+
+            .password-strength {
+                font-weight: bold;
+                margin-top: 4px;
+            }
+            .password-strength.weak { color: #dc2626; }
+            .password-strength.medium { color: #d97706; }
+            .password-strength.strong { color: #16a34a; }
+
+            .password-requirements {
+                margin: 5px 0 0 0;
+                padding-left: 20px;
+                font-size: 13px;
+            }
+            .password-requirements li {
+                color: #6b7280;
+            }
+            .password-requirements li.met {
+                color: #16a34a;
+                font-weight: bold;
+            }
+
+            .password-match-message {
+                font-size: 13px;
+                margin-top: 4px;
+            }
+            .password-match-message.mismatch { color: #dc2626; }
+            .password-match-message.match { color: #16a34a; }
+
         </style>
 
         <script>
+
+
+            function validatePasswordStrength() {
+                const password = document.getElementById("password").value;
+
+                // Requirement checks
+                const hasLength = password.length >= 8;
+                const hasUpper = /[A-Z]/.test(password);
+                const hasLower = /[a-z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+                // Update requirement list
+                updateRequirement("req-length", hasLength);
+                updateRequirement("req-uppercase", hasUpper);
+                updateRequirement("req-lowercase", hasLower);
+                updateRequirement("req-number", hasNumber);
+                updateRequirement("req-special", hasSpecial);
+
+                // Strength level
+                let strengthCount = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+                const strengthEl = document.getElementById("password-strength");
+
+                if (strengthCount <= 2) {
+                    strengthEl.textContent = "Strength: Weak";
+                    strengthEl.className = "password-strength weak";
+                } else if (strengthCount === 3 || strengthCount === 4) {
+                    strengthEl.textContent = "Strength: Medium";
+                    strengthEl.className = "password-strength medium";
+                } else if (strengthCount === 5) {
+                    strengthEl.textContent = "Strength: Strong";
+                    strengthEl.className = "password-strength strong";
+                }
+            }
+
+            function updateRequirement(id, met) {
+                const el = document.getElementById(id);
+                if (met) {
+                    el.classList.add("met");
+                } else {
+                    el.classList.remove("met");
+                }
+            }
+
+            function checkPasswordMatch() {
+                const password = document.getElementById("password").value;
+                const confirm = document.getElementById("password-confirm").value;
+                const matchMessage = document.getElementById("password-match-message");
+
+                if (!confirm) {
+                    matchMessage.textContent = "";
+                    return;
+                }
+
+                if (password === confirm) {
+                    matchMessage.textContent = "Passwords match";
+                    matchMessage.className = "password-match-message match";
+                } else {
+                    matchMessage.textContent = "Passwords do not match";
+                    matchMessage.className = "password-match-message mismatch";
+                }
+            }
+
+
+            function showLoading() {
+                document.getElementById('loadingContainer').style.display = 'block';
+            }
+            function hideLoading() {
+                document.getElementById('loadingContainer').style.display = 'none';
+            }
+
 
             function validatePhoneNumber(phone) {
                 return /^\d{7,15}$/.test(phone);
@@ -388,6 +531,20 @@
                 document.getElementById('phoneCode').value = code;
             }
 
+            function disableSubmitButton() {
+                const btn = document.querySelector(".submit-btn");
+                btn.disabled = true;
+                btn.textContent = "Processing..."; // Optional: change text
+                btn.classList.add("disabled");
+            }
+
+            function enableSubmitButton() {
+                const btn = document.querySelector(".submit-btn");
+                btn.disabled = false;
+                btn.textContent = "${msg("doRegister")}"; // Back to original text
+                btn.classList.remove("disabled");
+            }
+
 
           async function registerUser(event) {
               event.preventDefault();
@@ -399,7 +556,7 @@
               const terms = document.getElementById("terms").checked;
 
               hideError();
-
+              hideLoading();
               if (!validatePhoneNumber(phoneNumber)) {
                   showError("Please enter a valid phone number (7-15 digits)");
                   return false;
@@ -422,6 +579,12 @@
               // Create URL-encoded data string
               const formData = new URLSearchParams(new FormData(form)).toString();
               try {
+                  showLoading(); // Show spinner/loading text
+                  disableSubmitButton();
+                    // Simulate network delay for testing loading UI
+                      await new Promise(resolve => setTimeout(resolve, 3000)); // wait 3 seconds
+
+
                   const response = await fetch("/realms/master/custom-registration/register", {
                       method: "POST",
                       headers: {
@@ -429,6 +592,8 @@
                       },
                       body: formData, // Pass URL-encoded string as the body
                   });
+                  hideLoading(); // Hide loading
+                  enableSubmitButton();
 
                   if (response.ok) {
                        // Instead of redirecting, show success message
@@ -438,13 +603,15 @@
                       );
                   } else {
                     if (response.status === 409) {
-                        showError("This email is already registered. Try another email.");
+                        showError("An account with this email already exists. Please log in or use a different email.");
                     } else {
                         const result = await response.json().catch(() => ({ message: "Unknown error occurred" }));
                         showError(result.message || "Registration failed");
                     }
                   }
               } catch (error) {
+                 hideLoading(); // Hide loading
+                 enableSubmitButton();
                  console.error("Error submitting registration form:", error);
                  showError("An unexpected error occurred. Please try again.");
               }

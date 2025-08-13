@@ -1,5 +1,6 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
+<@layout.registrationLayout displayMessage=false displayInfo=realm.password && realm.registrationAllowed &&
+!registrationDisabled??; section>
     <#if section = "header">
        <!-- No Data -->
     <#elseif section = "form">
@@ -14,6 +15,40 @@
                             <p>Sign in to access your dashboard</p>
                         </div>
 
+                        <!-- Error Messages - FIXED -->
+                        <#if messagesPerField.existsError('username','password')>
+                            <div class="error-message">
+                                <#if messagesPerField.existsError('username')>
+                                    <#assign usernameErrors = messagesPerField.get('username')>
+                                    <#if usernameErrors?is_sequence>
+                                        <#list usernameErrors as error>
+                                            <span>${error}</span><br/>
+                                        </#list>
+                                    <#else>
+                                        <span>${usernameErrors}</span><br/>
+                                    </#if>
+                                </#if>
+                                <#if messagesPerField.existsError('password')>
+                                    <#assign passwordErrors = messagesPerField.get('password')>
+                                    <#if passwordErrors?is_sequence>
+                                        <#list passwordErrors as error>
+                                            <span>${error}</span><br/>
+                                        </#list>
+                                    <#else>
+                                        <span>${passwordErrors}</span><br/>
+                                    </#if>
+                                </#if>
+                            </div>
+                        <#elseif message?has_content && (message.type != 'warning' || !isAppInitiatedAction??)>
+                            <div class="${message.type}-message">
+                                <#if message.type = 'success'><span class="pficon pficon-ok"></span></#if>
+                                <#if message.type = 'warning'><span class="pficon pficon-warning-triangle-o"></span></#if>
+                                <#if message.type = 'error'><span class="pficon pficon-error-circle-o"></span></#if>
+                                <#if message.type = 'info'><span class="pficon pficon-info"></span></#if>
+                                <span class="kc-feedback-text">${kcSanitize(message.summary)?no_esc}</span>
+                            </div>
+                        </#if>
+
                         <!-- Username/Email Field -->
                         <div class="form-group">
                             <label for="username" class="${properties.kcLabelClass!}">
@@ -25,7 +60,7 @@
                                     ${msg("email")}
                                 </#if>
                             </label>
-                            <input tabindex="1" id="username" class="${properties.kcInputClass!}"
+                            <input tabindex="1" id="username" class="${properties.kcInputClass!} <#if messagesPerField.existsError('username','password')>input-error</#if>"
                                    name="username" value="${(login.username!'')}"
                                    placeholder="Enter your email address" type="text" autofocus autocomplete="off"
                                    aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"/>
@@ -34,10 +69,15 @@
                         <!-- Password Field -->
                         <div class="form-group">
                             <label for="password" class="${properties.kcLabelClass!}">${msg("password")}</label>
-                            <input tabindex="2" id="password" class="${properties.kcInputClass!}"
-                                   name="password" type="password" autocomplete="off"
-                                   placeholder="Enter your password"
-                                   aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"/>
+                            <div class="password-input-container">
+                                <input tabindex="2" id="password" class="${properties.kcInputClass!} <#if messagesPerField.existsError('username','password')>input-error</#if>"
+                                       name="password" type="password" autocomplete="off"
+                                       placeholder="Enter your password"
+                                       aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"/>
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                                    <span id="password-toggle-icon">🐵</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Remember Me -->
@@ -67,7 +107,7 @@
                             <input tabindex="4" class="submit-btn" name="login" id="kc-login" type="submit" value="${msg("doLogIn")}"/>
                         </div>
 
-                        <!-- Add this just before your submit button in your existing template -->
+                        <!-- Social Login -->
                         <#if social.providers??>
                             <div class="social-login">
                                 <div class="separator">
@@ -102,6 +142,20 @@
             </div>
         </div>
 
+        <script>
+            function togglePasswordVisibility() {
+                const passwordField = document.getElementById('password');
+                const toggleIcon = document.getElementById('password-toggle-icon');
+
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    toggleIcon.textContent = '🙈';
+                } else {
+                    passwordField.type = 'password';
+                    toggleIcon.textContent = '🐵️';
+                }
+            }
+        </script>
 
         <style>
              /* Add this to hide any unwanted header text */
@@ -128,7 +182,6 @@
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
 
-
             .logo {
                 max-width: 100px;
             }
@@ -151,6 +204,86 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 font-size: 14px;
+                box-sizing: border-box;
+            }
+
+            /* Error message styles */
+            .error-message {
+                background-color: #fee;
+                border: 1px solid #fcc;
+                border-radius: 4px;
+                padding: 12px;
+                margin-bottom: 20px;
+                color: #d00;
+                font-size: 14px;
+            }
+
+            .success-message {
+                background-color: #efe;
+                border: 1px solid #cfc;
+                border-radius: 4px;
+                padding: 12px;
+                margin-bottom: 20px;
+                color: #060;
+                font-size: 14px;
+            }
+
+            .warning-message {
+                background-color: #ffd;
+                border: 1px solid #ffb;
+                border-radius: 4px;
+                padding: 12px;
+                margin-bottom: 20px;
+                color: #a60;
+                font-size: 14px;
+            }
+
+            .info-message {
+                background-color: #def;
+                border: 1px solid #bdf;
+                border-radius: 4px;
+                padding: 12px;
+                margin-bottom: 20px;
+                color: #036;
+                font-size: 14px;
+            }
+
+            /* Input error styles */
+            .input-error {
+                border-color: #d00 !important;
+                box-shadow: 0 0 0 2px rgba(221, 0, 0, 0.2);
+            }
+
+            /* Password input container */
+            .password-input-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+
+            .password-input-container input {
+                padding-right: 45px;
+            }
+
+            .password-toggle {
+                position: absolute;
+                right: 10px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 5px;
+                border-radius: 3px;
+                transition: background-color 0.2s;
+            }
+
+            .password-toggle:hover {
+                background-color: #f0f0f0;
+            }
+
+            .password-toggle:focus {
+                outline: 2px solid #4A90E2;
+                outline-offset: 1px;
             }
 
             .remember-forgot {
@@ -191,7 +324,7 @@
             .social-login {
                 margin-top: 20px;
                 text-align: center;
-                width: 100%; /* Ensure it doesn't overflow */
+                width: 100%;
             }
 
             .separator {
@@ -228,7 +361,7 @@
                 text-decoration: none;
                 font-weight: 500;
                 transition: background 0.3s, box-shadow 0.3s;
-                box-sizing: border-box; /* Add this */
+                box-sizing: border-box;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.12);
             }
 
@@ -243,7 +376,6 @@
                 justify-content: center;
                 margin-right: 10px;
             }
-
         </style>
 
     </#if>

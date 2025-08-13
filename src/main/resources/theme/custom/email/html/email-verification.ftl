@@ -441,7 +441,7 @@
             <p>This verification email was sent to ${email} for account security purposes</p>
             <p>Need assistance? <a href="https://convonest.com/#contact">Contact our support team</a></p>
             <p><a href="https://www.convonest.com">Visit our website</a> | <a href="https://convonest.com/privacy">Privacy Policy</a></p>
-            <p>&copy; 2024 Convonest Tech Pvt Ltd. All rights reserved.</p>
+            <p>&copy; 2025 Convonest Tech Pvt Ltd. All rights reserved.</p>
         </div>
     </div>
 </body>
