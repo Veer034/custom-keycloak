@@ -48,6 +48,18 @@
                                            value="${(register.formData.lastName!'')}"
                                            placeholder="Enter your last name" required tabindex="3"/>
                                 </div>
+                                <!-- New Row for Plan -->
+                                <div class="form-row">
+                                    <div class="form-group full-width">
+                                        <label for="plan">Plan</label>
+                                        <select id="plan" name="plan" class="form-control" required tabindex="7">
+                                            <option value="">Select your plan</option>
+                                            <option value="basic">Basic</option>
+                                            <option value="pro">Pro</option>
+                                            <option value="enterprise">Enterprise</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Password Row -->
@@ -57,7 +69,7 @@
                                     <label for="password">${msg("password")}</label>
                                     <input type="password" id="password" class="form-control" name="password"
                                            placeholder="Enter your password" required tabindex="4"
-                                           oninput="validatePasswordStrength(); checkPasswordMatch();" />
+                                           oninput="validatePasswordStrength(); checkPasswordMatch(); checkFormValidity();" />
                                     <div id="password-strength" class="password-strength"></div>
                                     <ul id="password-requirements" class="password-requirements">
                                         <li id="req-length">Minimum 8 characters</li>
@@ -73,7 +85,7 @@
                                     <label for="password-confirm">${msg("passwordConfirm")}</label>
                                     <input type="password" id="password-confirm" class="form-control"
                                            name="password-confirm" placeholder="Confirm your password" required tabindex="5"
-                                           oninput="checkPasswordMatch();" />
+                                           oninput="checkPasswordMatch(); checkFormValidity();" />
                                     <div id="password-match-message" class="password-match-message"></div>
                                 </div>
 
@@ -94,6 +106,7 @@
                                         <option value="others">Others</option>
                                     </select>
                                 </div>
+
                             </div>
 
                             <!-- Email and Phone Row -->
@@ -102,18 +115,19 @@
                                     <label for="email">${msg("email")}</label>
                                     <input type="email" id="email" class="form-control" name="email"
                                            value="${(register.formData.email!'')}"
-                                           placeholder="Enter your email address" required tabindex="7"/>
+                                           placeholder="Enter your email address" required tabindex="8"/>
                                 </div>
 
                                 <div class="form-group" style="grid-column: span 2;">
                                     <label for="phoneNumber">Phone Number</label>
                                     <div class="phone-input-container">
-                                        <select id="countryCode" name="countryCode" class="country-select" required onchange="updateCountryCode()" tabindex="8">
+                                        <select id="countryCode" name="countryCode" class="country-select" required
+                                        onchange="updateCountryCode()" tabindex="9">
                                             <#include "country-codes.ftl">
                                         </select>
                                         <input type="tel" id="phoneNumber" class="phone-input" name="phoneNumber"
                                                placeholder="Enter phone number" required pattern="[0-9]*"
-                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" tabindex="9"/>
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" tabindex="10"/>
                                         <input type="hidden" id="phoneCode" name="phoneCode" value=""/>
                                     </div>
                                     <div id="phoneError" class="error-message"></div>
@@ -124,20 +138,22 @@
                         <!-- Terms and Conditions -->
                         <div class="form-group terms-container">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="terms" name="terms" required tabindex="10">
-                                <span>I agree to the <a href="#" onclick="showTerms(); return false;" tabindex="11">Terms and Conditions</a></span>
+                                <input type="checkbox" id="terms" name="terms" required tabindex="11" onchange="checkFormValidity();">
+                                <span>I agree to the <a href="#" onclick="showTerms(); return false;"
+                                tabindex="12">Terms and Conditions</a></span>
                             </label>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="form-group">
-                            <button class="submit-btn" type="submit" tabindex="12">${msg("doRegister")}</button>
+                            <button class="submit-btn disabled" type="submit" tabindex="13" id="registerButton" disabled>${msg("doRegister")}</button>
+                            <div id="form-validation-message" class="form-validation-message">Please complete all required fields and meet password requirements</div>
                         </div>
 
                         <!-- Login Link -->
                         <div class="form-group login-link-container">
                             <div class="login-text">Already have an account?</div>
-                            <a href="${url.loginUrl}" class="login-button" tabindex="13">Sign In</a>
+                            <a href="${url.loginUrl}" class="login-button" tabindex="14">Sign In</a>
                         </div>
 
                         <!-- Error message container -->
@@ -212,6 +228,8 @@
                 max-width: 700px !important;
                 margin: 0 auto !important;
                 padding: 20px !important;
+                position: relative !important;
+                left: -15px !important;
             }
 
             /* Form grid layout */
@@ -296,8 +314,25 @@
             .submit-btn.disabled {
                 background-color: #9ca3af !important;
                 cursor: not-allowed !important;
+                opacity: 0.6 !important;
             }
 
+            .submit-btn:disabled:hover {
+                background-color: #9ca3af !important;
+            }
+
+            /* Form validation message */
+            .form-validation-message {
+                font-size: 12px !important;
+                color: #dc2626 !important;
+                margin-top: 5px !important;
+                text-align: center !important;
+                display: block !important;
+            }
+
+            .form-validation-message.hidden {
+                display: none !important;
+            }
 
             /* Error container */
             .error-container {
@@ -319,6 +354,41 @@
             .terms-container {
                 text-align: center !important;
                 margin: 5px 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+
+            .checkbox-label {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+                font-size: 14px !important;
+                color: #374151 !important;
+                cursor: pointer !important;
+            }
+
+            .checkbox-label input[type="checkbox"] {
+                margin: 0 !important;
+                width: 16px !important;
+                height: 16px !important;
+                accent-color: #0061f2 !important;
+                cursor: pointer !important;
+            }
+
+            .checkbox-label span {
+                text-align: center !important;
+            }
+
+            .checkbox-label a {
+                color: #0061f2 !important;
+                text-decoration: underline !important;
+            }
+
+            .checkbox-label a:hover {
+                color: #0052cc !important;
             }
 
 
@@ -436,7 +506,9 @@
         </style>
 
         <script>
-
+            // Global variables to track validation state
+            let passwordRequirementsMet = false;
+            let passwordsMatch = false;
 
             function validatePasswordStrength() {
                 const password = document.getElementById("password").value;
@@ -454,6 +526,9 @@
                 updateRequirement("req-lowercase", hasLower);
                 updateRequirement("req-number", hasNumber);
                 updateRequirement("req-special", hasSpecial);
+
+                // Check if all requirements are met
+                passwordRequirementsMet = hasLength && hasUpper && hasLower && hasNumber && hasSpecial;
 
                 // Strength level
                 let strengthCount = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
@@ -487,18 +562,54 @@
 
                 if (!confirm) {
                     matchMessage.textContent = "";
+                    passwordsMatch = false;
                     return;
                 }
 
                 if (password === confirm) {
                     matchMessage.textContent = "Passwords match";
                     matchMessage.className = "password-match-message match";
+                    passwordsMatch = true;
                 } else {
                     matchMessage.textContent = "Passwords do not match";
                     matchMessage.className = "password-match-message mismatch";
+                    passwordsMatch = false;
                 }
             }
 
+            function checkFormValidity() {
+                const button = document.getElementById("registerButton");
+                const validationMessage = document.getElementById("form-validation-message");
+                const termsChecked = document.getElementById("terms").checked;
+
+                // Check if all conditions are met
+                const isFormValid = passwordRequirementsMet && passwordsMatch && termsChecked;
+
+                if (isFormValid) {
+                    // Enable button
+                    button.disabled = false;
+                    button.classList.remove("disabled");
+                    validationMessage.classList.add("hidden");
+                } else {
+                    // Disable button
+                    button.disabled = true;
+                    button.classList.add("disabled");
+                    validationMessage.classList.remove("hidden");
+
+                    // Update validation message based on what's missing
+                    let message = "Please ";
+                    let issues = [];
+
+                    if (!termsChecked) {
+                        issues.push("accept the terms and conditions");
+                    }
+
+                    if (issues.length > 0) {
+                        message += issues.join(", ");
+                        validationMessage.textContent = message;
+                    }
+                }
+            }
 
             function showLoading() {
                 document.getElementById('loadingContainer').style.display = 'block';
@@ -545,94 +656,96 @@
                 btn.classList.remove("disabled");
             }
 
+            async function registerUser(event) {
+                event.preventDefault();
 
-          async function registerUser(event) {
-              event.preventDefault();
+                // Double-check form validity before proceeding
+                if (!passwordRequirementsMet || !passwordsMatch || !document.getElementById("terms").checked) {
+                    showError("Please complete all required fields and meet all password requirements before submitting.");
+                    return false;
+                }
 
-              const form = event.target;
-              const phoneNumber = document.getElementById("phoneNumber").value;
-              const password = document.getElementById("password").value;
-              const passwordConfirm = document.getElementById("password-confirm").value;
-              const terms = document.getElementById("terms").checked;
+                const form = event.target;
+                const phoneNumber = document.getElementById("phoneNumber").value;
+                const password = document.getElementById("password").value;
+                const passwordConfirm = document.getElementById("password-confirm").value;
+                const terms = document.getElementById("terms").checked;
 
-              hideError();
-              hideLoading();
-              if (!validatePhoneNumber(phoneNumber)) {
-                  showError("Please enter a valid phone number (7-15 digits)");
-                  return false;
-              }
+                hideError();
+                hideLoading();
 
-              if (password !== passwordConfirm) {
-                  showError("Passwords do not match");
-                  return false;
-              }
+                if (!validatePhoneNumber(phoneNumber)) {
+                    showError("Please enter a valid phone number (7-15 digits)");
+                    return false;
+                }
 
-              if (!terms) {
-                  showError("Please accept the Terms and Conditions");
-                  return false;
-              }
+                if (password !== passwordConfirm) {
+                    showError("Passwords do not match");
+                    return false;
+                }
 
+                if (!terms) {
+                    showError("Please accept the Terms and Conditions");
+                    return false;
+                }
 
                 // Ensure country code is updated
-              updatePhoneCode();
+                updatePhoneCode();
 
-              // Create URL-encoded data string
-              const formData = new URLSearchParams(new FormData(form)).toString();
-              try {
-                  showLoading(); // Show spinner/loading text
-                  disableSubmitButton();
+                // Create URL-encoded data string
+                const formData = new URLSearchParams(new FormData(form)).toString();
+                try {
+                    showLoading(); // Show spinner/loading text
+                    disableSubmitButton();
                     // Simulate network delay for testing loading UI
-                      await new Promise(resolve => setTimeout(resolve, 3000)); // wait 3 seconds
+                    await new Promise(resolve => setTimeout(resolve, 3000)); // wait 3 seconds
 
+                    const response = await fetch("/realms/master/custom-registration/register", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded", // Explicitly set the correct content type
+                        },
+                        body: formData, // Pass URL-encoded string as the body
+                    });
+                    hideLoading(); // Hide loading
+                    enableSubmitButton();
 
-                  const response = await fetch("/realms/master/custom-registration/register", {
-                      method: "POST",
-                      headers: {
-                          "Content-Type": "application/x-www-form-urlencoded", // Explicitly set the correct content type
-                      },
-                      body: formData, // Pass URL-encoded string as the body
-                  });
-                  hideLoading(); // Hide loading
-                  enableSubmitButton();
-
-                  if (response.ok) {
-                       // Instead of redirecting, show success message
-                      showSuccessMessage(
-                          "Registration successful! We've sent a verification link to your email address. " +
-                          "Please check your inbox and click the link to complete your registration."
-                      );
-                  } else {
-                    if (response.status === 409) {
-                        showError("An account with this email already exists. Please log in or use a different email.");
+                    if (response.ok) {
+                        // Instead of redirecting, show success message
+                        showSuccessMessage(
+                            "Registration successful! We've sent a verification link to your email address. " +
+                            "Please check your inbox and click the link to complete your registration."
+                        );
                     } else {
-                        const result = await response.json().catch(() => ({ message: "Unknown error occurred" }));
-                        showError(result.message || "Registration failed");
+                        if (response.status === 409) {
+                            showError("An account with this email already exists. Please log in or use a different email.");
+                        } else {
+                            const result = await response.json().catch(() => ({ message: "Unknown error occurred" }));
+                            showError(result.message || "Registration failed");
+                        }
                     }
-                  }
-              } catch (error) {
-                 hideLoading(); // Hide loading
-                 enableSubmitButton();
-                 console.error("Error submitting registration form:", error);
-                 showError("An unexpected error occurred. Please try again.");
-              }
-              return false;
-          }
+                } catch (error) {
+                    hideLoading(); // Hide loading
+                    enableSubmitButton();
+                    console.error("Error submitting registration form:", error);
+                    showError("An unexpected error occurred. Please try again.");
+                }
+                return false;
+            }
 
-          function showSuccessMessage(message) {
-              const errorContainer = document.getElementById('errorContainer');
-              const errorMessage = errorContainer.querySelector('.error-message');
+            function showSuccessMessage(message) {
+                const errorContainer = document.getElementById('errorContainer');
+                const errorMessage = errorContainer.querySelector('.error-message');
 
-              // Style for success message
-              errorContainer.style.backgroundColor = '#ecfdf5';
-              errorContainer.style.borderColor = '#34d399';
-              errorMessage.style.color = '#047857';
+                // Style for success message
+                errorContainer.style.backgroundColor = '#ecfdf5';
+                errorContainer.style.borderColor = '#34d399';
+                errorMessage.style.color = '#047857';
 
-              errorMessage.textContent = message;
-              errorContainer.style.display = 'block';
-              errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-
-
+                errorMessage.textContent = message;
+                errorContainer.style.display = 'block';
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
 
             function updateCountryCode() {
                 const select = document.getElementById('countryCode');
@@ -653,6 +766,11 @@
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
+            }
+
+            // Initialize form validation on page load
+            window.onload = function() {
+                checkFormValidity();
             }
         </script>
     </#if>

@@ -88,7 +88,7 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
             String phoneCode = formData.getFirst(Constants.PHONE_CODE);
             String phoneNumber = formData.getFirst(Constants.PHONE_NUMBER);
             String sector = formData.getFirst(Constants.SECTOR);
-
+            String plan = formData.getFirst(Constants.PLAN);
             // Validate input
             if (Validation.isBlank(email)) {
                 logger.warn("EmailId is blank, Invalid request ");
@@ -156,6 +156,7 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
             user.setSingleAttribute(Constants.IS_ONBOARDED, String.valueOf(false));
             user.setSingleAttribute(Constants.ROLE, ADMIN_ROLE);
             user.setSingleAttribute(Constants.PRIVILEGES, writeValueAsString(ALL_ROLES));
+            user.setSingleAttribute(Constants.PLAN, plan);
 
 
             String groupName = tenantId + Constants.ADMIN;

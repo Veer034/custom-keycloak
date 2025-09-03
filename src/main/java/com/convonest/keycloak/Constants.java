@@ -18,6 +18,7 @@ public interface Constants {
     String TENANT_ID = "tenantId";
     String ORG_ID = "orgId";
     String PRIVILEGES = "privileges";
+    String PLAN = "plan";
     String IS_ACTIVE = "isActive";
 
     String IS_ONBOARDED = "isOnboarded";
