@@ -125,9 +125,24 @@ public class CustomRegistrationProvider implements RealmResourceProvider {
             }
 
             // Check if user already exists
-            if (session.users().getUserByEmail(realm, email) != null) {
-                logger.warn("Registration stopped started for duplicate user:{} ", email);
-                return Response.status(Response.Status.CONFLICT).entity("User with this email already exists").build();
+            UserModel existingUser = session.users().getUserByEmail(realm, email);
+            if (existingUser != null) {
+                logger.warn("User exists - ID: {}, Email: {}, Username: {}, Enabled: {}, EmailVerified: {}",
+                        existingUser.getId(),
+                        existingUser.getEmail(),
+                        existingUser.getUsername(),
+                        existingUser.isEnabled(),
+                        existingUser.isEmailVerified());
+
+                // Optionally, you might want to allow re-registration if email is not verified
+                // and user is disabled
+                if (!existingUser.isEmailVerified() && !existingUser.isEnabled()) {
+                    logger.info("User exists but email not verified and disabled, allowing re-registration");
+                    // Remove the existing user
+                    session.users().removeUser(realm, existingUser);
+                } else {
+                    return Response.status(Response.Status.CONFLICT).entity("User with this email already exists").build();
+                }
             }
 
             // Create user
