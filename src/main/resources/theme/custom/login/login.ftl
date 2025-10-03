@@ -110,9 +110,7 @@
                         <!-- Social Login -->
                         <#if social.providers??>
                             <div class="social-login">
-                                <div class="separator">
-                                    <span>or continue with</span>
-                                </div>
+                                <div class="separator"><span>or continue with</span></div>
                                 <#list social.providers as p>
                                     <#if p.alias == "google">
                                         <a href="${p.loginUrl}" class="google-btn">
@@ -128,14 +126,20 @@
                                         </a>
                                     </#if>
                                 </#list>
+                                <div class="social-login-note" style="font-size:12px;color:#6b7280;margin-top:10px;text-align:center;display:inline-block;white-space:nowrap;">
+                                    By logging in, you agree to our
+                                    <a href="https://www.convonest.com/terms" target="_blank" style="color:#0061f2;text-decoration:underline;display:inline;">Terms & Conditions</a>
+                                    and
+                                    <a href="https://www.convonest.com/privacy" target="_blank" style="color:#0061f2;text-decoration:underline;display:inline;">Privacy Policy</a>.
+                                </div>
                             </div>
                         </#if>
 
                         <!-- Registration Link -->
                         <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
-                            <div class="register-link">
-                                <span>${msg("noAccount")} <a tabindex="6" href="${url.registrationUrl}">${msg("doRegister")}</a></span>
-                            </div>
+                           <div class="register-link" style="text-align:center;margin-top:10px;">
+                               <span>New User? <a tabindex="6" href="${url.registrationUrl}">${msg("doRegister")}</a></span>
+                           </div>
                         </#if>
                     </div>
                 </form>

@@ -39,14 +39,23 @@
                                     <label for="firstName">${msg("firstName")}</label>
                                     <input type="text" id="firstName" class="form-control" name="firstName"
                                            value="${(register.formData.firstName!'')}"
-                                           placeholder="Enter your first name" required tabindex="2"/>
+                                           placeholder="Enter your first name" required tabindex="2"
+                                           maxlength="50"
+                                           pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\\-\\s]{1,50}$"
+                                           title="First name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)"
+                                           />
                                 </div>
 
                                 <div class="form-group">
                                     <label for="lastName">${msg("lastName")}</label>
                                     <input type="text" id="lastName" class="form-control" name="lastName"
                                            value="${(register.formData.lastName!'')}"
-                                           placeholder="Enter your last name" required tabindex="3"/>
+                                           placeholder="Enter your last name" required tabindex="3"
+                                           maxlength="50"
+                                           pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\\-\\s]{1,50}$"
+                                           title="Last name can only include letters, spaces, hyphens, and apostrophes
+                                           (max 50 characters)
+                                           />
                                 </div>
                                 <!-- New Row for Plan -->
                                 <div class="form-row">
@@ -115,7 +124,9 @@
                                     <label for="email">${msg("email")}</label>
                                     <input type="email" id="email" class="form-control" name="email"
                                            value="${(register.formData.email!'')}"
-                                           placeholder="Enter your email address" required tabindex="8"/>
+                                           placeholder="Enter your email address" required tabindex="8"
+                                           maxlength="100"
+                                           title="Email address must be valid and under 100 characters"/>
                                 </div>
 
                                 <div class="form-group" style="grid-column: span 2;">
@@ -197,11 +208,18 @@
                         <li>Export your data in a machine-readable format</li>
                     </ul>
 
-                    <h3>4. Privacy Policy</h3>
+                    <h3>4. Partial Refund</h3>
+                    <p>All subscription fees are subject to our refund policy. Partial refunds may be issued at the sole discretion of Convonest Analytics and under circumstances defined in the official refund policy.</p>
+
+                    <h3>5. No Liability</h3>
+                    <p>Convonest Analytics shall not be liable for any indirect, incidental, or consequential damages arising from the use of our platform, including but not limited to data loss, service interruption, or any financial loss.</p>
+
+                    <h3>6. Privacy Policy</h3>
                     <p>For detailed information about how we handle your data, please refer to our complete Privacy Policy.</p>
                 </div>
             </div>
         </div>
+
 
         <style>
             /* Base styles */
@@ -502,6 +520,15 @@
             }
             .password-match-message.mismatch { color: #dc2626; }
             .password-match-message.match { color: #16a34a; }
+
+            .oauth-note a {
+                color: #0061f2;
+                text-decoration: underline;
+            }
+
+            .oauth-note a:hover {
+                color: #0052cc;
+            }
 
         </style>
 
