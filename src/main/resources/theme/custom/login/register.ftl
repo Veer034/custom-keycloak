@@ -34,6 +34,7 @@
                             </div>
 
                             <!-- Personal Info Row -->
+                            <!-- Personal Info Row -->
                             <div class="form-row three-columns">
                                 <div class="form-group">
                                     <label for="firstName">${msg("firstName")}</label>
@@ -53,21 +54,18 @@
                                            placeholder="Enter your last name" required tabindex="3"
                                            maxlength="50"
                                            pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\\-\\s]{1,50}$"
-                                           title="Last name can only include letters, spaces, hyphens, and apostrophes
-                                           (max 50 characters)
+                                           title="Last name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)"
                                            />
                                 </div>
-                                <!-- New Row for Plan -->
-                                <div class="form-row">
-                                    <div class="form-group full-width">
-                                        <label for="plan">Plan</label>
-                                        <select id="plan" name="plan" class="form-control" required tabindex="7">
-                                            <option value="">Select your plan</option>
-                                            <option value="basic">Basic</option>
-                                            <option value="pro">Pro</option>
-                                            <option value="enterprise">Enterprise</option>
-                                        </select>
-                                    </div>
+
+                                <div class="form-group">
+                                    <label for="plan">Plan</label>
+                                    <select id="plan" name="plan" class="form-control" required tabindex="4">
+                                        <option value="">Select your plan</option>
+                                        <option value="basic">Basic</option>
+                                        <option value="pro">Pro</option>
+                                        <option value="enterprise">Enterprise</option>
+                                    </select>
                                 </div>
                             </div>
 
@@ -186,9 +184,9 @@
                     <p>Convonest Analytics ("we", "our", or "the Company") collects and processes user data to provide analytics services. By using our platform, you agree that we may collect:</p>
                     <ul>
                         <li>User authentication information</li>
-                        <li>Usage patterns and analytics data</li>
-                        <li>System performance metrics</li>
-                        <li>User preferences and settings</li>
+                        <li>Usage patterns, analytics insights, and operational data necessary to provide core platform features</li>
+                        <li>System performance and diagnostic metrics</li>
+                        <li>User preferences, configurations, and settings</li>
                     </ul>
 
                     <h3>2. Data Protection</h3>
@@ -520,16 +518,6 @@
             }
             .password-match-message.mismatch { color: #dc2626; }
             .password-match-message.match { color: #16a34a; }
-
-            .oauth-note a {
-                color: #0061f2;
-                text-decoration: underline;
-            }
-
-            .oauth-note a:hover {
-                color: #0052cc;
-            }
-
         </style>
 
         <script>

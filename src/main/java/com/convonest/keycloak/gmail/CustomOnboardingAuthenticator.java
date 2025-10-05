@@ -2,7 +2,6 @@ package com.convonest.keycloak.gmail;
 
 import com.convonest.keycloak.Constants;
 import jakarta.ws.rs.core.MultivaluedMap;
-import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.authentication.AbstractFormAuthenticator;
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -18,6 +17,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.utils.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import static com.convonest.keycloak.KeycloakUtils.writeValueAsString;
 
 public class CustomOnboardingAuthenticator extends AbstractFormAuthenticator implements Authenticator, AuthenticatorFactory {
 
-    private static final Logger logger = Logger.getLogger(CustomOnboardingAuthenticator.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomOnboardingAuthenticator.class);
 
     @Override
     public void authenticate(AuthenticationFlowContext context) {
@@ -105,6 +106,7 @@ public class CustomOnboardingAuthenticator extends AbstractFormAuthenticator imp
             user.setSingleAttribute(Constants.PHONE_NUMBER, formData.getFirst(Constants.PHONE_NUMBER));
             user.setSingleAttribute(Constants.COUNTRY_CODE, formData.getFirst(Constants.COUNTRY_CODE));
             user.setSingleAttribute(Constants.SECTOR, formData.getFirst(Constants.SECTOR));
+            user.setSingleAttribute(Constants.PLAN, formData.getFirst(Constants.PLAN));
 
             // Ensure the user has the correct social login provider attribute
             user.setSingleAttribute(Constants.SOCIAL_PROVIDER, SocialProvider.GOOGLE.name());

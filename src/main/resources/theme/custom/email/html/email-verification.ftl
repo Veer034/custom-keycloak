@@ -376,7 +376,7 @@
 
             <div class="verification-message">
                 <div class="verification-text">
-                    Thank you for signing up for Convonest Analytics Platform. Please click the button below to verify your email address and activate your account within ${linkExpiration} minutes:
+                    Thank you for signing up for Convonest Analytics Platform. Please click the button below to verify your email address and activate your account within ${linkExpiration / 60} hours:
                 </div>
 
                 <div class="verify-button-container">
@@ -389,7 +389,8 @@
             <div class="warning-section">
                 <div class="warning-title">⚠️ Important Security Notice</div>
                 <div class="warning-content">
-                    If you didn't sign up for this account, you can safely ignore this email. This verification link will expire in ${linkExpiration} minutes for your security.
+                    If you didn't sign up for this account, you can safely ignore this email. This verification link
+                    will expire in ${linkExpiration / 60} hours for your security.
                 </div>
             </div>
 
@@ -405,7 +406,7 @@
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">⏰ Link Expires In:</div>
-                    <div class="meta-value">${linkExpiration} minutes</div>
+                    <div class="meta-value">${linkExpiration / 60} hours</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">🔗 Verification Link:</div>

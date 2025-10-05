@@ -1,8 +1,15 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayInfo=social.displayInfo displayMessage=!messagesPerField.existsError('username') displayRequiredFields=false; section>
+<@layout.registrationLayout displayInfo=false displayMessage=false displayRequiredFields=false; section>
     <#if section == "header">
-        <!-- Header Content (unchanged) -->
+        <!-- Header Content -->
     <#elseif section == "form">
+        <style>
+            /* Hide Keycloak's default info display */
+            #kc-info, #kc-info-wrapper {
+                display: none !important;
+            }
+        </style>
+
         <div id="kc-form">
             <div id="kc-form-wrapper">
                 <form id="kc-register-form" onsubmit="return registerUser(event);"
@@ -15,13 +22,25 @@
                             <p class="subtitle">Join Convonest Analytics</p>
                         </div>
 
+                        <!-- Error Message Container -->
+                        <div id="errorContainer" class="error-container" style="display: none;">
+                            <div class="error-message"></div>
+                        </div>
+
+                        <!-- Loading Message Container -->
+                        <div id="loadingContainer" class="loading-container" style="display: none;">
+                            <div class="loading-message">Processing your registration... Please wait</div>
+                        </div>
+
                         <div class="form-grid">
                             <!-- Company Name -->
                             <div class="form-group full-width">
                                 <label for="companyName">Company Name</label>
                                 <input type="text" id="companyName" class="form-control" name="companyName"
                                        value="${(onboarding.companyName!'')}" required
-                                       placeholder="Enter your company name" tabindex="1"/>
+                                       placeholder="Enter your company name"
+                                       maxlength="100"
+                                       tabindex="1"/>
                             </div>
 
                             <!-- Personal Info Row -->
@@ -30,23 +49,41 @@
                                     <label for="firstName">${msg("firstName")}</label>
                                     <input type="text" id="firstName" class="form-control" name="firstName"
                                            value="${(onboarding.firstName!'')}"
-                                           placeholder="Enter your first name" required tabindex="2"/>
+                                           placeholder="Enter your first name" required tabindex="2"
+                                           maxlength="50"
+                                           pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\\-\\s]{1,50}$"
+                                           title="First name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)"/>
                                 </div>
 
                                 <div class="form-group">
                                     <label for="lastName">${msg("lastName")}</label>
                                     <input type="text" id="lastName" class="form-control" name="lastName"
                                            value="${(onboarding.lastName!'')}"
-                                           placeholder="Enter your last name" required tabindex="3"/>
+                                           placeholder="Enter your last name" required tabindex="3"
+                                           maxlength="50"
+                                           pattern="^[A-Za-zÀ-ÖØ-öø-ÿ'\\-\\s]{1,50}$"
+                                           title="Last name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)"/>
                                 </div>
                             </div>
 
+                            <!-- Plan Selection Row -->
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="plan">Plan</label>
+                                    <select id="plan" name="plan" class="form-control" required tabindex="4">
+                                        <option value="">Select your plan</option>
+                                        <option value="basic">Basic</option>
+                                        <option value="pro">Pro</option>
+                                        <option value="enterprise">Enterprise</option>
+                                    </select>
+                                </div>
+                            </div>
 
                             <!-- Sector Selection and Email Row -->
                             <div class="form-row two-columns">
                                 <div class="form-group">
                                     <label for="sector">Sector</label>
-                                    <select id="sector" name="sector" class="form-control" required tabindex="6">
+                                    <select id="sector" name="sector" class="form-control" required tabindex="5">
                                         <option value="">Select your sector</option>
                                         <option value="ecommerce">E-commerce</option>
                                         <option value="retail">Retail</option>
@@ -57,7 +94,7 @@
                                         <option value="health_insurance">Health Insurance</option>
                                         <option value="digital_healthcare">Digital Healthcare</option>
                                         <option value="healthcare">Hospitals and Healthcare</option>
-                                        <option value="other">Others</option>
+                                        <option value="others">Others</option>
                                     </select>
                                 </div>
 
@@ -65,7 +102,9 @@
                                     <label for="email">${msg("email")}</label>
                                     <input type="email" id="email" class="form-control" name="email"
                                            value="${(onboarding.email!'')}"
-                                           placeholder="Enter your email address" required readonly tabindex="7"/>
+                                           placeholder="Enter your email address" required readonly tabindex="6"
+                                           maxlength="100"
+                                           title="Email address must be valid and under 100 characters"/>
                                 </div>
                             </div>
 
@@ -75,34 +114,36 @@
                                     <label for="phoneNumber">Phone Number</label>
                                     <div class="phone-input-container">
                                         <select id="countryCode" name="countryCode" class="country-select" required
-                                        onchange="updatePhoneCode()" tabindex="8">
+                                        onchange="updatePhoneCode()" tabindex="7">
                                             <#include "country-codes.ftl">
                                         </select>
                                         <input type="tel" id="phoneNumber" class="phone-input" name="phoneNumber"
                                                placeholder="Enter phone number" required pattern="[0-9]*"
-                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" tabindex="9"/>
+                                               oninput="this.value = this.value.replace(/[^0-9]/g, '')" tabindex="8"/>
                                         <input type="hidden" id="phoneCode" name="phoneCode" value=""/>
                                     </div>
                                     <div id="phoneError" class="error-message"></div>
                                 </div>
                             </div>
+                        </div>
 
                         <!-- Terms and Conditions -->
                         <div class="form-group terms-container">
                             <label class="checkbox-label">
-                                <input type="checkbox" id="terms" name="terms" required tabindex="10">
-                                <span>I agree to the <a href="#" onclick="showTerms(); return false;" tabindex="11">Terms and Conditions</a></span>
+                                <input type="checkbox" id="terms" name="terms" required tabindex="9">
+                                <span>I agree to the <a href="#" onclick="showTerms(); return false;" tabindex="10">Terms and Conditions</a></span>
                             </label>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="form-group">
-                            <button class="submit-btn" type="submit" tabindex="12">${msg("doRegister")}</button>
+                            <button class="submit-btn" type="submit" tabindex="11">${msg("doRegister")}</button>
                         </div>
 
-                        <!-- Error Message Container -->
-                        <div id="errorContainer" class="error-container" style="display: none;">
-                            <div class="error-message"></div>
+                        <!-- Login Link -->
+                        <div class="form-group login-link-container">
+                            <div class="login-text">Already have an account?</div>
+                            <a href="${url.loginUrl}" class="login-button" tabindex="12">Sign In</a>
                         </div>
                     </div>
                 </form>
@@ -119,9 +160,9 @@
                     <p>Convonest Analytics ("we", "our", or "the Company") collects and processes user data to provide analytics services. By using our platform, you agree that we may collect:</p>
                     <ul>
                         <li>User authentication information</li>
-                        <li>Usage patterns and analytics data</li>
-                        <li>System performance metrics</li>
-                        <li>User preferences and settings</li>
+                        <li>Usage patterns, analytics insights, and operational data necessary to provide core platform features</li>
+                        <li>System performance and diagnostic metrics</li>
+                        <li>User preferences, configurations, and settings</li>
                     </ul>
 
                     <h3>2. Data Protection</h3>
@@ -141,7 +182,13 @@
                         <li>Export your data in a machine-readable format</li>
                     </ul>
 
-                    <h3>4. Privacy Policy</h3>
+                    <h3>4. Partial Refund</h3>
+                    <p>All subscription fees are subject to our refund policy. Partial refunds may be issued at the sole discretion of Convonest Analytics and under circumstances defined in the official refund policy.</p>
+
+                    <h3>5. No Liability</h3>
+                    <p>Convonest Analytics shall not be liable for any indirect, incidental, or consequential damages arising from the use of our platform, including but not limited to data loss, service interruption, or any financial loss.</p>
+
+                    <h3>6. Privacy Policy</h3>
                     <p>For detailed information about how we handle your data, please refer to our complete Privacy Policy.</p>
                 </div>
             </div>
@@ -269,16 +316,98 @@
                 margin-top: 4px;
             }
 
+            /* Loading container */
+            .loading-container {
+                background-color: #e0f2fe;
+                border: 1px solid #0284c7;
+                padding: 10px;
+                border-radius: 6px;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+
+            .loading-message {
+                color: #0369a1;
+                font-size: 14px;
+            }
+
             /* Terms container */
             .terms-container {
                 text-align: center !important;
                 margin: 5px 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                width: 100% !important;
             }
 
-            /* Logo container */
-             .logo {
-                 max-width: 100px;
-             }
+            .checkbox-label {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+                font-size: 14px !important;
+                color: #374151 !important;
+                cursor: pointer !important;
+            }
+
+            .checkbox-label input[type="checkbox"] {
+                margin: 0 !important;
+                width: 16px !important;
+                height: 16px !important;
+                accent-color: #0061f2 !important;
+                cursor: pointer !important;
+            }
+
+            .checkbox-label span {
+                text-align: center !important;
+            }
+
+            .checkbox-label a {
+                color: #0061f2 !important;
+                text-decoration: underline !important;
+            }
+
+            .checkbox-label a:hover {
+                color: #0052cc !important;
+            }
+
+            /* Login link container */
+            .login-link-container {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 8px !important;
+                margin-top: 10px !important;
+            }
+
+            .login-text {
+                font-size: 14px !important;
+                color: #6b7280 !important;
+            }
+
+            .login-button {
+                display: inline-block !important;
+                padding: 8px 24px !important;
+                background-color: #f3f4f6 !important;
+                color: #0061f2 !important;
+                border: 1px solid #d1d5db !important;
+                border-radius: 6px !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                text-decoration: none !important;
+                transition: all 0.2s !important;
+                cursor: pointer !important;
+            }
+
+            .login-button:hover {
+                background-color: #e5e7eb !important;
+                border-color: #9ca3af !important;
+            }
+
+            .logo {
+                max-width: 100px;
+            }
 
             /* Responsive design */
             @media (max-width: 768px) {
@@ -348,8 +477,6 @@
         </style>
 
         <script>
-
-
             function validatePhoneNumber(phone) {
                 return /^\d{7,15}$/.test(phone);
             }
@@ -367,51 +494,82 @@
                 errorContainer.style.display = 'none';
             }
 
-         function registerUser(event) {
-             event.preventDefault();
+            function showLoading() {
+                document.getElementById('loadingContainer').style.display = 'block';
+            }
 
-             const form = document.getElementById("kc-register-form");
-             const phoneNumber = document.getElementById("phoneNumber").value;
-             const terms = document.getElementById("terms").checked;
+            function hideLoading() {
+                document.getElementById('loadingContainer').style.display = 'none';
+            }
 
-             hideError();
+            function registerUser(event) {
+                event.preventDefault();
 
-             if (!validatePhoneNumber(phoneNumber)) {
-                 showError("Please enter a valid phone number (7-15 digits)");
-                 return false;
-             }
+                const form = document.getElementById("kc-register-form");
+                const phoneNumber = document.getElementById("phoneNumber").value;
+                const terms = document.getElementById("terms").checked;
+                const firstName = document.getElementById("firstName").value;
+                const lastName = document.getElementById("lastName").value;
+                const companyName = document.getElementById("companyName").value;
 
-             if (!terms) {
-                 showError("Please accept the Terms and Conditions");
-                 return false;
-             }
+                hideError();
 
-             // Ensure country code is updated
-             updatePhoneCode();
+                // Validate company name
+                if (companyName.length > 100) {
+                    showError("Company name must be under 100 characters");
+                    return false;
+                }
 
-             console.log("Form submitting to: " + form.action);
+                // Validate first name
+                const namePattern = /^[A-Za-zÀ-ÖØ-öø-ÿ'\-\s]{1,50}$/;
+                if (!namePattern.test(firstName)) {
+                    showError("First name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)");
+                    return false;
+                }
 
-             // Traditional form submission - no AJAX
-             form.submit();
-             return false; // Prevent default form submission since we're doing it manually
-         }
+                // Validate last name
+                if (!namePattern.test(lastName)) {
+                    showError("Last name can only include letters, spaces, hyphens, and apostrophes (max 50 characters)");
+                    return false;
+                }
 
+                // Validate phone number
+                if (!validatePhoneNumber(phoneNumber)) {
+                    showError("Please enter a valid phone number (7-15 digits)");
+                    return false;
+                }
 
-          function showSuccessMessage(message) {
-              const errorContainer = document.getElementById('errorContainer');
-              const errorMessage = errorContainer.querySelector('.error-message');
+                if (!terms) {
+                    showError("Please accept the Terms and Conditions");
+                    return false;
+                }
 
-              // Style for success message
-              errorContainer.style.backgroundColor = '#ecfdf5';
-              errorContainer.style.borderColor = '#34d399';
-              errorMessage.style.color = '#047857';
+                // Ensure country code is updated
+                updatePhoneCode();
 
-              errorMessage.textContent = message;
-              errorContainer.style.display = 'block';
-              errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
+                console.log("Form submitting to: " + form.action);
 
+                // Show loading indicator
+                showLoading();
 
+                // Traditional form submission
+                form.submit();
+                return false;
+            }
+
+            function showSuccessMessage(message) {
+                const errorContainer = document.getElementById('errorContainer');
+                const errorMessage = errorContainer.querySelector('.error-message');
+
+                // Style for success message
+                errorContainer.style.backgroundColor = '#ecfdf5';
+                errorContainer.style.borderColor = '#34d399';
+                errorMessage.style.color = '#047857';
+
+                errorMessage.textContent = message;
+                errorContainer.style.display = 'block';
+                errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
 
             function updatePhoneCode() {
                 const select = document.getElementById('countryCode');
@@ -432,16 +590,15 @@
                 if (event.target == modal) {
                     modal.style.display = 'none';
                 }
-            }
+            };
 
+            // Add this near the top of your script section
+            console.log("Form action URL: ${url.loginAction}");
 
-             // Add this near the top of your script section
-                console.log("Form action URL: ${url.loginAction}");
-
-                // Add this to check if the form was properly rendered
-                document.addEventListener('DOMContentLoaded', function() {
-                    console.log("Form action set to: " + document.getElementById('kc-register-form').action);
-                });
+            // Add this to check if the form was properly rendered
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log("Form action set to: " + document.getElementById('kc-register-form').action);
+            });
         </script>
     </#if>
 </@layout.registrationLayout>

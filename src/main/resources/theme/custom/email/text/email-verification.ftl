@@ -3,7 +3,7 @@ Subject: Verify Your Email - ${user}
 Hi ${user},
 
 Thank you for signing up for Convonest Analytics Platform. Please verify your email address to activate your account by
-clicking the link below with 24 hours:
+clicking the link below within ${linkExpiration / 60} hours:
 
 ${link}
 

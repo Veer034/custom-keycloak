@@ -184,7 +184,7 @@ public class CustomUserCheckAuthenticator implements Authenticator, Authenticato
             // Store Google ID first
             if (brokerContext.id != null) {
                 user.setSingleAttribute("google_id", brokerContext.id);
-                logger.info("Set Google ID for user: {}", brokerContext.id);
+//                logger.info("Set Google ID for user: {}", brokerContext.id);
             }
 
             ObjectMapper mapper = new ObjectMapper();
@@ -214,7 +214,7 @@ public class CustomUserCheckAuthenticator implements Authenticator, Authenticato
                             mapper.getTypeFactory().constructCollectionType(List.class, String.class));
                     if (!firstNames.isEmpty()) {
                         user.setFirstName(firstNames.get(0));
-                        logger.info("Set firstName from user attributes: {}", firstNames.get(0));
+//                        logger.info("Set firstName from user attributes: {}", firstNames.get(0));
                         updated = true;
                     }
                 } catch (Exception e) {
@@ -229,7 +229,7 @@ public class CustomUserCheckAuthenticator implements Authenticator, Authenticato
                             mapper.getTypeFactory().constructCollectionType(List.class, String.class));
                     if (!lastNames.isEmpty()) {
                         user.setLastName(lastNames.get(0));
-                        logger.info("Set lastName from user attributes: {}", lastNames.get(0));
+//                        logger.info("Set lastName from user attributes: {}", lastNames.get(0));
                         updated = true;
                     }
                 } catch (Exception e) {
