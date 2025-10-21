@@ -22,53 +22,6 @@
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
-        .company-branding {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            padding: 20px 30px;
-            border-bottom: 3px solid #ffffff20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-        }
-        .company-logo {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            letter-spacing: -0.5px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-            flex-shrink: 0;
-        }
-        .company-logo::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: 50%;
-            border: 2px solid rgba(147, 197, 253, 0.4);
-            animation: pulse 2s infinite;
-        }
-        .company-text {
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-            display: flex;
-            align-items: center;
-        }
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;
@@ -324,13 +277,6 @@
         }
 
         @media (max-width: 600px) {
-            .company-branding {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .company-text {
-                font-size: 18px;
-            }
             .contact-info {
                 flex-direction: column;
                 align-items: center;
@@ -349,15 +295,16 @@
 <body>
     <div class="email-container">
         <!-- Company Branding -->
-        <div class="company-branding">
-            <div class="company-logo">
+        <div style="display:flex; align-items:center; justify-content:center; gap:15px; padding:20px 0; background:#667eea; color:white;">
+            <!-- Logo Circle -->
+            <div style="width:50px; height:50px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px;">
                 CN
             </div>
-            <div class="company-text">
+            <!-- Company Name -->
+            <div style="font-size:20px; font-weight:700; color:white;">
                 CONVONEST TECH PVT LTD
             </div>
         </div>
-
         <!-- Header Section -->
         <div class="header">
             <span class="header-icon">🔐</span>
