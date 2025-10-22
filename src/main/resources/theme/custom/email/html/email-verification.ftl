@@ -295,16 +295,32 @@
 <body>
     <div class="email-container">
         <!-- Company Branding -->
-        <div style="display:flex; align-items:center; justify-content:center; gap:15px; padding:20px 0; background:#667eea; color:white;">
-            <!-- Logo Circle -->
-            <div style="width:50px; height:50px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px;">
-                CN
-            </div>
-            <!-- Company Name -->
-            <div style="font-size:20px; font-weight:700; color:white;">
-                CONVONEST TECH PVT LTD
-            </div>
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#667eea; padding:20px 0;">
+            <tr>
+                <td align="center">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td align="center" valign="middle">
+                                <!-- Logo Circle -->
+                                <table cellpadding="0" cellspacing="0" border="0" style="width:60px; height:60px; border-radius:50%; background:#2563eb; margin-right:20px;">
+                                    <tr>
+                                        <td align="center" valign="middle" style="width:60px; height:60px; border-radius:50%; line-height:60px; text-align:center; font-weight:bold; font-size:24px; color:white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                                            CN
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td align="center" valign="middle">
+                                <!-- Company Name -->
+                                <div style="font-size:20px; font-weight:700; color:white; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; letter-spacing:0.5px;">
+                                    CONVONEST TECH PVT LTD
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
         <!-- Header Section -->
         <div class="header">
             <span class="header-icon">🔐</span>
@@ -323,7 +339,7 @@
 
             <div class="verification-message">
                 <div class="verification-text">
-                    Thank you for signing up for Convonest Analytics Platform. Please click the button below to verify your email address and activate your account within ${linkExpiration / 60} hours:
+                    Thank you for signing up for Convonest Analytics Platform. Please click the button below to verify your email address and activate your account within ${linkExpirationFormatted}:
                 </div>
 
                 <div class="verify-button-container">
@@ -337,7 +353,7 @@
                 <div class="warning-title">⚠️ Important Security Notice</div>
                 <div class="warning-content">
                     If you didn't sign up for this account, you can safely ignore this email. This verification link
-                    will expire in ${linkExpiration / 60} hours for your security.
+                    will expire in ${linkExpirationFormatted} for your security.
                 </div>
             </div>
 
@@ -353,7 +369,7 @@
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">⏰ Link Expires In:</div>
-                    <div class="meta-value">${linkExpiration / 60} hours</div>
+                    <div class="meta-value"> ${linkExpirationFormatted}</div>
                 </div>
                 <div class="meta-item">
                     <div class="meta-label">🔗 Verification Link:</div>

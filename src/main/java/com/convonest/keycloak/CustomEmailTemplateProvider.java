@@ -20,21 +20,27 @@ public class CustomEmailTemplateProvider extends FreeMarkerEmailTemplateProvider
 
     @Override
     public void sendVerifyEmail(String link, long expirationInMinutes) throws EmailException {
-        logger.info("Received expiration time: {} minutes ({} days)",
-                expirationInMinutes, expirationInMinutes / 1440);
+        logger.info("Received expiration time: {} minutes", expirationInMinutes);
 
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getEmail();
-
-        // Custom dynamic subject
         String customSubject = "Welcome to Convonest Analytics Platform! Verify Your Email";
 
-        // Attributes for the email template
+        // Format expiration time intelligently
+        String formattedExpiration;
+        if (expirationInMinutes >= 60) {
+            long hours = expirationInMinutes / 60;
+            formattedExpiration = hours + (hours > 1 ? " hours" : " hour");
+        } else {
+            formattedExpiration = expirationInMinutes + (expirationInMinutes > 1 ? " minutes" : " minute");
+        }
+
         Map<String, Object> attributes = new HashMap<>(this.attributes);
         attributes.put("userName", userName);
         attributes.put("email", user.getEmail());
-        addLinkInfoIntoAttributes(link, expirationInMinutes, attributes);
+        attributes.put("linkExpiration", expirationInMinutes); // Keep original for other uses
+        attributes.put("linkExpirationFormatted", formattedExpiration); // Add formatted version
+        attributes.put("link", link);
 
-        // Send the email
         send(customSubject, "email-verification.ftl", attributes);
     }
 
