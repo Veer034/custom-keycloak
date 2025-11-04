@@ -1,43 +1,45 @@
 <#import "template.ftl" as layout>
-<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=false; section>
-    <#if section == "header">
-         <!-- No Data -->
-    <#elseif section == "form">
+<@layout.registrationLayout displayMessage=!messagesPerField.existsError('username') displayInfo=false; section>
+    <#if section == "form">
         <div id="kc-form">
             <div id="kc-form-wrapper">
-                <form id="kc-forgot-password" onsubmit="forgotPassword.disabled = true; return true;" action="${url.loginResetCredentialsUrl}" method="post">
+                <form id="kc-reset-password-form" action="${url.loginAction}" method="post">
                     <div class="login-container">
                         <!-- Logo -->
                         <div class="logo-container">
                             <img src="${url.resourcesPath}/img/company_logo.png" alt="Convonest Logo" class="logo">
                             <h2>Forgot Your Password?</h2>
-                            <p>Enter your email address to reset your password</p>
+                            <p>Enter your registered email address to receive a password reset link.</p>
                         </div>
 
-                        <!-- Error Message -->
+                        <!-- Message -->
                         <#if message?has_content>
-                            <div id="error-message" style="color: red; text-align: center; margin-bottom: 15px;">
+                            <div id="error-message" style="color:red; text-align:center; margin-bottom:15px;">
                                 ${messageSummary}
                             </div>
                         </#if>
 
                         <!-- Email Field -->
                         <div class="form-group">
-                            <label for="username" class="${properties.kcLabelClass!}">${msg("email")}</label>
-                            <input tabindex="1" id="username" class="${properties.kcInputClass!}" name="username"
-                                   value="${(auth.attemptedUsername!'')}" placeholder="Enter your email address"
-                                   type="email" autofocus autocomplete="off"
-                                   aria-invalid="<#if messagesPerField.existsError('username')>true</#if>"/>
+                            <label for="username">${msg("email")}</label>
+                            <input id="username" name="username" type="email"
+                                   value="${(auth.attemptedUsername!'')}"
+                                   placeholder="Enter your email address"
+                                   autofocus autocomplete="off" required
+                                   aria-invalid="<#if messagesPerField.existsError('username')>true</#if>" />
+                            <#if messagesPerField.existsError('username')>
+                                <span class="error-text">${messagesPerField.get('username')}</span>
+                            </#if>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Submit -->
                         <div class="form-group">
-                            <input tabindex="2" class="submit-btn" name="forgotPassword" id="kc-forgot-password-submit" type="submit" value="Reset Password"/>
+                            <input class="submit-btn" id="kc-reset-password-submit" type="submit" value="Send Reset Link" />
                         </div>
 
-                        <!-- Back to Login Link -->
+                        <!-- Back to Login -->
                         <div class="register-link">
-                            <span><a tabindex="3" href="${url.loginUrl}">Back to Login</a></span>
+                            <a href="${url.loginUrl}">Back to Login</a>
                         </div>
                     </div>
                 </form>
@@ -45,7 +47,7 @@
         </div>
 
         <style>
-            /* Add this to hide any unwanted header text */
+            /* Hide default Keycloak header */
             #kc-header,
             #kc-header-wrapper {
                 display: none !important;
@@ -62,15 +64,29 @@
 
             .login-container {
                 max-width: 400px;
-                margin: 0 auto;
-                padding: 20px;
+                margin: 60px auto;
+                padding: 25px;
                 background: white;
                 border-radius: 8px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-             .logo {
-                 max-width: 100px;
-             }
+
+            .logo {
+                max-width: 100px;
+                display: block;
+                margin: 0 auto 10px;
+            }
+
+            h2 {
+                text-align: center;
+                margin-bottom: 5px;
+            }
+
+            p {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #666;
+            }
 
             .form-group {
                 margin-bottom: 20px;
@@ -89,6 +105,11 @@
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 font-size: 14px;
+            }
+
+            .error-text {
+                color: red;
+                font-size: 13px;
             }
 
             .submit-btn {

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.convonest.keycloak.Constants.ADMIN_ROLE;
+
 public class UserOnboardEmailListenerProvider implements EventListenerProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(UserOnboardEmailListenerProvider.class);
@@ -101,28 +103,34 @@ public class UserOnboardEmailListenerProvider implements EventListenerProvider {
 
     private void sendNotificationEmail(RealmModel realm, UserModel user) {
         try {
-            EmailTemplateProvider emailProvider = session.getProvider(EmailTemplateProvider.class);
-            emailProvider.setRealm(realm);
-            emailProvider.setUser(user);
 
-            // NOTE:: Force use of custom theme, it should match with resources/theme/{custom}/email
-            realm.setEmailTheme("custom");
+            String role = user.getFirstAttribute("role");
+            // Only sending notification when Admin user is created.
+            if (ADMIN_ROLE.equalsIgnoreCase(role)) {
 
-            String subject = "New User OnBoarding - " + user.getUsername();
+                EmailTemplateProvider emailProvider = session.getProvider(EmailTemplateProvider.class);
+                emailProvider.setRealm(realm);
+                emailProvider.setUser(user);
 
-            Map<String, Object> attributes = new HashMap<>();
-            attributes.put("username", user.getUsername());
-            attributes.put("firstName", user.getFirstName() != null ? user.getFirstName() : "N/A");
-            attributes.put("lastName", user.getLastName() != null ? user.getLastName() : "N/A");
-            attributes.put("email", user.getEmail() != null ? user.getEmail() : "N/A");
-            attributes.put(Constants.COMPANY_NAME, user.getFirstAttribute(Constants.COMPANY_NAME) != null ? user.getFirstAttribute(Constants.COMPANY_NAME) : "N/A");
-            notificationEmail = StringUtil.isNotBlank(notificationEmail) ? notificationEmail :
-                    getNotificationEmail();
+                // NOTE:: Force use of custom theme, it should match with resources/theme/{custom}/email
+                realm.setEmailTheme("custom");
 
-            emailProvider.send(subject, Collections.singletonList(notificationEmail), "user-onboard.ftl", attributes);
+                String subject = "New User OnBoarding - " + user.getUsername();
 
-            logger.info("Notification email sent for new user: {} , to notificationEmailId :{} ", user.getUsername(),
-                    notificationEmail);
+                Map<String, Object> attributes = new HashMap<>();
+                attributes.put("username", user.getUsername());
+                attributes.put("firstName", user.getFirstName() != null ? user.getFirstName() : "N/A");
+                attributes.put("lastName", user.getLastName() != null ? user.getLastName() : "N/A");
+                attributes.put("email", user.getEmail() != null ? user.getEmail() : "N/A");
+                attributes.put(Constants.COMPANY_NAME, user.getFirstAttribute(Constants.COMPANY_NAME) != null ? user.getFirstAttribute(Constants.COMPANY_NAME) : "N/A");
+                notificationEmail = StringUtil.isNotBlank(notificationEmail) ? notificationEmail :
+                        getNotificationEmail();
+
+                emailProvider.send(subject, Collections.singletonList(notificationEmail), "user-onboard.ftl", attributes);
+
+                logger.info("Notification email sent for new user: {} , to notificationEmailId :{} ", user.getUsername(),
+                        notificationEmail);
+            }
         } catch (EmailException e) {
             logger.error("Failed to send notification email", e);
         }

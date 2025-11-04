@@ -36,12 +36,12 @@
             color: #555;
             font-size: 14px;
         }
-        /* Fixed button styles with proper specificity */
-        a.verify-button,
-        a.verify-button:link,
-        a.verify-button:visited,
-        a.verify-button:hover,
-        a.verify-button:active {
+        /* Button styles */
+        a.reset-button,
+        a.reset-button:link,
+        a.reset-button:visited,
+        a.reset-button:hover,
+        a.reset-button:active {
             display: inline-block;
             background-color: #0052cc;
             color: #ffffff !important;
@@ -52,7 +52,7 @@
             font-weight: bold;
             margin-top: 20px;
         }
-        a.verify-button:hover {
+        a.reset-button:hover {
             background-color: #0041a8;
         }
         .meta-info {
@@ -67,7 +67,6 @@
         .meta-info p {
             margin: 5px 0;
         }
-        /* Fix link color in meta info */
         .meta-info a {
             color: #0052cc !important;
             text-decoration: none;
@@ -94,21 +93,22 @@
     <div class="email-container">
         <!-- Header Section -->
         <div class="header">
-            Welcome to <#if user.attributes.companyName?? && user.attributes.companyName?has_content><#if user.attributes.companyName?is_sequence>${user.attributes.companyName?first}<#else>${user.attributes.companyName}</#if><#else>${realmName}</#if>, ${user.firstName!'User'}!
+            Password Reset Request
         </div>
 
         <!-- Content Section -->
         <div class="content">
-            <h2>You Have Been Added to the Team</h2>
-            <p>Hi ${user.firstName!'User'},</p>
-            <p>You have been added to the team at <strong><#if user.attributes.companyName?? && user.attributes.companyName?has_content><#if user.attributes.companyName?is_sequence>${user.attributes.companyName?first}<#else>${user.attributes.companyName}</#if><#else>${realmName}</#if></strong>. To access your account, please verify your email and set your password.</p>
+            <h2>Reset Your Password</h2>
+            <p>Hi ${userName!'there'},</p>
+            <p>We received a request to reset the password for your account.</p>
+            <p>If you made this request, click the button below to reset your password:</p>
 
             <!-- Button with table structure for better email client support -->
             <table border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
                 <tr>
                     <td align="center" style="border-radius: 5px; background-color: #0052cc;">
                         <a href="${link}" style="display: inline-block; padding: 12px 20px; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; color: #ffffff !important; text-decoration: none !important; border-radius: 5px;">
-                            Verify and Set Password
+                            Reset Password
                         </a>
                     </td>
                 </tr>
@@ -116,12 +116,12 @@
 
             <p style="margin-top: 20px;">Or copy and paste this link into your browser:</p>
             <div class="meta-info">
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>Verification Link:</strong> <a href="${link}" style="color: #0052cc !important; text-decoration: none;">${link}</a></p>
+                <p><a href="${link}" style="color: #0052cc !important; text-decoration: none;">${link}</a></p>
                 <p style="margin-top: 10px;"><strong>⏱ This link will expire in ${linkExpirationFormatted}.</strong></p>
             </div>
 
-            <p style="margin-top: 20px;">If you did not expect this email, please ignore it.</p>
+            <p style="margin-top: 20px; color: #d32f2f; font-weight: bold;">⚠️ Important:</p>
+            <p style="color: #666;">If you did not request a password reset, please ignore this email. Your password will remain unchanged and your account is secure.</p>
         </div>
 
         <!-- Footer Section -->

@@ -75,10 +75,16 @@
                                        placeholder="Enter your password"
                                        aria-invalid="<#if messagesPerField.existsError('username','password')>true</#if>"/>
                                 <button type="button" class="password-toggle" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
-                                    <span id="password-toggle-icon">🐵</span>
+                                    <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.8" stroke="currentColor" class="eye-icon">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>
+
 
                         <!-- Remember Me -->
                         <div class="form-group remember-forgot">
@@ -147,17 +153,19 @@
         </div>
 
         <script>
-            function togglePasswordVisibility() {
-                const passwordField = document.getElementById('password');
-                const toggleIcon = document.getElementById('password-toggle-icon');
+            let isPasswordVisible = false;
 
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    toggleIcon.textContent = '🙈';
-                } else {
-                    passwordField.type = 'password';
-                    toggleIcon.textContent = '🐵️';
-                }
+            function togglePasswordVisibility() {
+                const passwordField = document.getElementById("password");
+                const eyeIcon = document.getElementById("eye-icon");
+
+                isPasswordVisible = !isPasswordVisible;
+                passwordField.type = isPasswordVisible ? "text" : "password";
+
+                // Toggle the eye / eye-slash shape
+                eyeIcon.innerHTML = isPasswordVisible
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M10.477 10.477A3 3 0 0112 9c1.657 0 3 1.343 3 3 0 .523-.133 1.013-.367 1.438M9.88 9.88C8.754 10.646 8 11.74 8 13c0 2.21 1.79 4 4 4 1.26 0 2.354-.754 3.12-1.88M21 21l-18-18"/>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><circle cx="12" cy="12" r="3"/>';
             }
         </script>
 
@@ -259,31 +267,38 @@
             }
 
             /* Password input container */
-            .password-input-container {
-                position: relative;
-                display: flex;
-                align-items: center;
-            }
+           .password-input-container {
+                   position: relative;
+                   display: flex;
+                   align-items: center;
+               }
 
-            .password-input-container input {
-                padding-right: 45px;
-            }
+               .password-input-container input {
+                   padding-right: 45px;
+               }
 
-            .password-toggle {
-                position: absolute;
-                right: 10px;
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 16px;
-                padding: 5px;
-                border-radius: 3px;
-                transition: background-color 0.2s;
-            }
+               .password-toggle {
+                   position: absolute;
+                   right: 10px;
+                   background: none;
+                   border: none;
+                   cursor: pointer;
+                   padding: 5px;
+                   border-radius: 4px;
+                   color: #666;
+                   transition: all 0.2s ease;
+               }
 
-            .password-toggle:hover {
-                background-color: #f0f0f0;
-            }
+               .password-toggle:hover {
+                   color: #000;
+                   transform: scale(1.1);
+               }
+
+               .eye-icon {
+                   width: 20px;
+                   height: 20px;
+                   pointer-events: none;
+               }
 
             .password-toggle:focus {
                 outline: 2px solid #4A90E2;

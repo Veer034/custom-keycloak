@@ -22,4 +22,10 @@ public class CustomEmailTemplateProviderFactory extends FreeMarkerEmailTemplateP
     public String getId() {
         return ID;
     }
+
+    @Override
+    public int order() {
+        // Higher priority than default (default is 0)
+        return 100;
+    }
 }
