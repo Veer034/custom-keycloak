@@ -8,6 +8,11 @@ COPY src/main/resources/keycloak.conf /opt/keycloak/conf/keycloak.conf
 # Add this line to build Keycloak with MySQL support
 RUN /opt/keycloak/bin/kc.sh build --db=mysql
 
+# Enable metrics and health endpoints
+ENV KC_METRICS_ENABLED=true
+ENV KC_HEALTH_ENABLED=true
+
+
 ENV TZ=UTC
 ENV KC_LOG_CONSOLE_FORMAT="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{2.} - %s%e%n"
 

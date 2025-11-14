@@ -1,3 +1,4 @@
 com.convonest.keycloak.EmailVerificationEventListenerProviderFactory
 com.convonest.keycloak.KafkaEventListenerProviderFactory
 com.convonest.keycloak.UserOnboardEmailListenerFactory
+com.convonest.keycloak.metrics.MetricsEventListenerProviderFactory

@@ -24,15 +24,15 @@ public class EmailVerificationEventListenerProvider implements EventListenerProv
 
     @Override
     public void onEvent(Event event) {
-        logger.info("EmailVerificationEventListenerProvider Received event of type: {}", event.getType());
-		if (event.getType() == EventType.VERIFY_EMAIL) {
-			RealmModel realm = session.realms().getRealm(event.getRealmId());
-			UserModel user = session.users().getUserById(realm, event.getUserId());
-			if (user != null) {
-				user.setEmailVerified(true);
-				logger.info("User [" + user.getUsername() + "] has been enabled after email verification.");
-			}
-		}
+
+        if (event.getType() == EventType.VERIFY_EMAIL) {
+            RealmModel realm = session.realms().getRealm(event.getRealmId());
+            UserModel user = session.users().getUserById(realm, event.getUserId());
+            if (user != null) {
+                user.setEmailVerified(true);
+                logger.info("User [" + user.getUsername() + "] has been enabled after email verification.");
+            }
+        }
     }
 
     @Override
